@@ -1,18 +1,4 @@
 var output;
-var gamelog = function(str) {
-	output.append(str+"<br />");
-};
-
-/**
- * Module export
- */
-exports.start = function ( out, heroes ) {
-	output = out; // init game out
-	
-	gamelog("GameStart!");
-	
-	gameinit(heroes);
-};
 
 /**
  * Utils Function
@@ -36,6 +22,10 @@ function randInArray (arr) {
 	var rand = Math.floor(Math.random() * arr.length);
 	return arr[rand];
 }
+
+var gamelog = function(str) {
+	output.append(str+"<br />");
+};
 
 var STAGEWIDTH = 960,
 	STAGEHEIGHT = 640;
@@ -383,3 +373,64 @@ var nextLevel = function nextLevel() {
 		Crafty.stop();
 	}
 }
+
+function updateLevelNum (num) {
+	$('#levelnum').value(num);
+}
+function updateMonsterNum (num) {
+	$('#monsternum').value(num);
+}
+function updateUserHP (id, hp) {
+	$('#user'+id+".hp").value(hp);
+}
+
+$(function(){
+	var herocontroller = [0,0,0,0];
+	var can_start = false;
+	console.log('Page Loaded');
+	output = $("#output");
+
+	var sio = window.sio = io.connect();
+	sio.on('connect', function () {
+		output.append('Server Connected ! <br/>');
+
+		sio.emit('roomjoin', function (roomid) {
+			output.append('Room ID: '+ roomid +'<br/>');
+		});
+		
+		sio.on('heroconnect', function (data) { // controller connect
+			var hero = Number(data.hero.substr(4));
+			var session = data.session;
+			
+			if(herocontroller.indexOf(session) < 0){
+				can_start = true;
+				herocontroller[hero] = session;
+				$('#hero'+hero).removeClass('negative').addClass('positive');
+				output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
+			}
+		}).on('game control', function (data) {
+			var hero = herocontroller.indexOf( data.user.id );
+			console.log(data.msg.type);
+		}).on('disconnect', function (msg) {
+			output.append('Server Disconnected! <br/>');
+		}).on('logger', function(data) {
+			console.log(data.msg);
+		});
+		
+		// when start remove all things
+		$('#start_btn').click(function () {
+			if(can_start){
+				$('#hero_selector').addClass('hidden');
+				$('#gamecanvas').removeClass('hidden');
+				// Game Start
+				
+				// gameinit(heroes);
+			}
+		});
+	});
+
+	// Set global error handler
+	sio.socket.on('error', function(msg) {
+		output.append('Server Error '+msg+'<br/>');
+	});
+});

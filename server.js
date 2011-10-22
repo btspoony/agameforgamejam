@@ -32,11 +32,6 @@ app.configure(function(){
 	app.register('.html', require('ejs'));
 	app.set('view engine', 'html');
 	
-	app.use(require('browserify')({
-	    mount : '/browserify.js',
-	    require : [app.path + '/client/main', app.path + '/client/controller'],
-	}));
-	
 	// using effcient favicon
 	app.use(express.favicon(app.path + '/public/favicon.ico'));
 	
