@@ -1,290 +1,59 @@
+<script type="text/javascript" src="js/controller.js" ></script>
+
+<style type="text/css">
+	#mobilemain{
+		background: url('images/mobile_bg.png') no-repeat;
+		width:480px;
+		height:320px;
+		display:-webkit-box;
+		-webkit-box-align:center;
+		-webkit-box-pack:center;
+	}
+	.btn{
+		border:none;
+		background-size:contain;
+	}
+	ul.buttons{
+		list-style-type: none;
+		width:80%;
+	}
+	.buttons li{
+		float:left;
+		width:25%;
+		height:82px;
+	}
+	.hero1{
+		background: url('images/index_gun1.png') no-repeat;
+	}
+	.hero2{
+		background: url('images/index_knife1.png') no-repeat;
+	}
+	.hero3, .hero4{
+		background: url('images/index_ask1.png') no-repeat;
+	}
+	.hero1_on{
+		background: url('images/index_gun2.png') no-repeat;
+	}
+	.hero2_on{
+		background: url('images/index_knife2.png') no-repeat;
+	}
+	.hero3_on, .hero4_on{
+		background: url('images/index_ask2.png') no-repeat;
+	}
+	
+</style>
+
 <div id="mobilemain">
 	<div id="title"></div>
-	<div class="buttons">
-		<button class="choosebtn positive" name="hero1">
-			HERO1
-		</button>
-		<button class="choosebtn positive" name="hero2">
-			HERO2
-		</button>
-		<button class="choosebtn positive" name="hero3">
-			HERO3
-		</button>
-		<button class="choosebtn positive" name="hero4">
-			HERO4
-		</button>
-	</div>
+	<ul class="buttons">
+		<li class="btn hero1" id="hero1"></li>
+		<li class="btn hero2" id="hero2"></li>
+		<li class="btn hero3" id="hero3"></li>
+		<li class="btn hero4" id="hero4"></li>
+	</ul>
 	<div id="ready"></div>
 </div>
 
 <div id="controller" style="background-color:red; width:400px; height:300px">
 	<div id="area" style="width:100%;height:100%"></div>
 </div>
-
-<script type="text/javascript" charset="utf-8">
-	$(function() {
-		
-		var userId;
-		
-		$(".choosebtn").click(function() {
-			var id = $(this).attr("name");
-			
-			userId = id.substr(4,1);
-			
-			// register to server
-			$.getJSON('connect/'+id, function(data) {
-				if(data.error)
-					console.log(data);
-				else
-				{
-					console.log('OK!');
-					
-					showCard("#controller");
-					hideCard("#mobilemain");
-				}	
-			});
-		});
-		
-		showCard("#mobilemain");
-		hideCard("#controller");
-		
-		
-		function showCard(id)
-		{
-			$(id).show();
-		}
-		function hideCard(id)
-		{
-			$(id).hide();
-		}
-		
-		
-		////////////////////////////////////////////////////////////////////////////////////
-		// Controlling Posting
-		//
-		
-		
-		if( "<%= platform.is.iOS %>" === "true" )
-		{
-			// safari ios 4.2+ only -_-|||||
-			var oldAccX,oldAccY,oldAccZ;
-
-			var t = null;
-			window.ondevicemotion = function(e) {
-
-				try{
-					var acc = e.accelerationIncludingGravity;
-
-					var dx = acc.x - oldAccX;
-					var dy = acc.y - oldAccY;
-					var dz = acc.z - oldAccZ;
-					oldAccX = acc.x;
-					oldAccY = acc.y;
-					oldAccZ = acc.z;
-
-					var abs = Math.abs;
-					var shark = abs(dx) > 15 || abs(dy) > 15 || abs(dz) > 15;
-					if(shark){
-						post("attack");
-					}
-				}catch(ex){
-					log( ex.message );
-				}
-
-			}
-		}
-
-		// common movement and click attack
-		var oldx, oldy, posx, posy, oldpx, oldpy, isPress, hold;
-		var oldvx, oldvy, timer, count;
-		var currx, curry, pressx, pressy;
-		var isMulTouch;
-
-		var sid = setInterval(function() {
-			
-			// if(isMulTouch) post("attack");
-
-			if(!isPress) return;
-
-			if( oldx == currx && oldy == curry )
-			{
-				if( ++hold == 3 )
-				{
-					console.log("stop");
-					
-					posx = currx;
-					posy = curry;
-					var vx = posx - oldpx;
-					var vy = posy - oldpy;
-					oldpx = posx;
-					oldpy = posy;
-
-					post("move", {vx:vx, vy:vy} );
-				}
-			}
-			else
-			{
-				hold = 0;
-
-				var newTimer = new Date().getTime();
-				var dt = newTimer - timer;
-				var dx = currx - oldx;
-				var dy = curry - oldy;
-				var ds = dx*dx + dy*dy;
-				oldvx = dx;
-				oldvy = dy;
-				timer = newTimer;
-
-				// test scratch attack
-				var validInterval = dt < 100;
-				var validScratch = Math.abs(dx) > 10 || Math.abs(dy) > 10;
-				if( validScratch && validInterval ) ++count;
-				else count = 0;
-
-
-				if( count > 5 )
-				{
-					console.log("scratch");
-					count = 0;
-					post("attack");
-				}
-				// end scratch attack
-			}
-
-			oldx = currx;
-			oldy = curry;
-		}, 50);
-
-		function ontouchstart (e) {
-			try{
-				isPress = true;
-			
-				isMulTouch = getMulTouch(e);
-				
-				// var t="";
-				// for(var i in e.originalEvent.touches[0]) if(typeof(e.originalEvent.touches[0])!=="function") t+=i+":"+e.originalEvent.touches[0][i]+"\n";
-				// logger(t);
-			
-				oldx = posx = currx = pressx = oldpx = getPageX(e);
-				oldy = posy = curry = pressy = oldpy = getPageY(e);
-				oldvx = oldvy = -1;
-				timer = new Date().getTime();
-				count  = 0;
-				hold = 0;
-				
-				e.originalEvent.preventDefault();
-			}catch(ex){
-				logger(ex.message);
-			}
-
-		}
-
-		function ontouchmove (e) {
-			try{
-				
-				currx = getPageX(e);
-				curry = getPageY(e);
-				
-				e.originalEvent.preventDefault();
-			}catch(ex){
-				logger(ex.message);				
-			}
-		}
-
-		function ontouchend (e) {
-			try{
-
-				isPress = false;
-				isMulTouch = false;
-
-				// test click attack
-				if( pressx == currx && pressy == curry )
-				{
-					post("attack");
-				}
-			
-				e.originalEvent.preventDefault();
-				
-			}catch(ex){
-				logger(ex.message);
-			}
-		}
-		
-		if( "<%= platform.is.iOS %>" === "true" )
-		{
-			$("#area").bind("touchstart", ontouchstart);
-			$("#area").bind("touchmove", ontouchmove);
-			$("#area").bind("touchend", ontouchend);
-		}
-		else
-		{
-			$("#area").bind("mousedown", ontouchstart);
-			$("#area").bind("mousemove", ontouchmove);
-			$("#area").bind("mouseup", ontouchend);
-		}
-		
-		function getPageX (e) {
-			if( "<%= platform.is.iOS %>" === "true" )
-				return e.originalEvent.touches[0].pageX;
-			else
-				return e.originalEvent.pageX;
-			// body...
-		}
-		function getPageY (e) {
-			if( "<%= platform.is.iOS %>" === "true" )
-				return e.originalEvent.touches[0].pageY;
-			else
-				return e.originalEvent.pageY;
-			// body...
-		}
-		function getMulTouch (e) {
-			if( "<%= platform.is.iOS %>" === "true" )
-				return e.originalEvent.touches && e.originalEvent.touches.length > 1;
-			else
-				return false;
-			// body...
-		}
-		
-		var lastPostTime = getTimer();
-		var postInterval = 300; // unit ms
-		
-		function post ( type, data) {
-			
-			console.log(type,data);
-			
-			// client render code
-			
-			// limit posting times
-			// var newTimer = getTimer();
-			// if( newTimer - lastPostTime < postInterval ) return;
-			// lastPostTime = newTimer;
-			
-			// send data to socketio
-			$.post("/eagleapi/room/rand",{
-				type: 'game control',
-				gamedata: { 
-					user: { id: $.cookie('connect.sid') }, 
-					msg: { type:type, data: data || {} }
-				},
-				sessionKey: $.cookie('connect.sid')
-			});
-		}
-		
-		function logger(msg){
-			$.post("/eagleapi/room/rand",{
-				type: 'logger',
-				gamedata: { 
-					user: { id: $.cookie('connect.sid') }, 
-					msg: msg
-				},
-				sessionKey: $.cookie('connect.sid')
-			});
-		}
-		
-		function getTimer()
-		{
-			return new Date().getTime();
-		}
-	});
-	
-</script>
