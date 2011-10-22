@@ -16,8 +16,14 @@
 	</div>
 	<div id="ready"></div>
 </div>
+
+<div id="controller" style="background-colro:red; width:400px; height:300px">
+	<div id="area"></div>
+</div>
+
 <script type="text/javascript" charset="utf-8">
 	$(function() {
+		
 		$(".choosebtn").click(function() {
 			var id = $(this).attr("name");
 			
@@ -26,8 +32,68 @@
 				if(data.error)
 					console.log(data);
 				else
+				{
 					console.log('OK!');
+					
+					showCard("#controller");
+					hideCard("#mobilemain");
+				}	
 			});
 		});
-	})
+		
+		showCard("#mobilemain");
+		hideCard("#controller");
+		
+		
+		function showCard(id)
+		{
+			$(id).position().left = "0px";
+			$(id).position().top = "0px";
+		}
+		function hideCard(id)
+		{
+			$(id).position().left = "-1000px";
+			$(id).position().top = "-1000px";
+			
+		}
+		
+		
+		//
+		// Controlling Posting
+		//
+		var lastPostTime = getTimer();
+		var postInterval = 300; // unit ms
+		
+		var controller = require("./controller");
+		controller.start( $("#area"), function(type, data){
+			// Here is control callback //
+			
+			// client render code
+			
+			// limit posting times
+			var newTimer = getTimer();
+			if( newTimer - lastPostTime < postInterval ) return;
+			lastPostTime = newTimer;
+			
+			// post control type and some data
+			$.post("/eagleapi/room/rand",{
+				type: "someone update",
+				gamedata: { 
+
+					type: type,
+					data: data || {}
+				},
+				sessionKey: $.cookie('connect.sid')
+			});
+		});
+	});
+	
+	
+	function getTimer()
+	{
+		return new Date().getTime();
+	}
+	
+	
+	
 </script>
