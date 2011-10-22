@@ -7,17 +7,16 @@
  * Module dependencies.
  */
 var express = require('express'),
-	config = require('./config'),
 	uaParse = require('./ext/uaparse').uaParse;
 
 //Local App Variables
 var port = process.env.PORT || 3000;
-	
+
 var app = module.exports = express.createServer();
 app.path = __dirname;
 
 // Configuration
-config.configApp(app); // load config parameter
+var serverurl =  'http://localhost:3000/';
 
 // enable log only on development mode
 app.configure("development", function(){
@@ -51,6 +50,14 @@ app.configure(function(){
 	
 	// Enable express router
 	app.use(app.router);
+	
+	// Global Default Locals
+	app.locals({ 
+		title : 'Game for game jam',
+		description: 'A game for HTML5 game jam',
+		author: 'Boisgames',
+		serverURL:serverurl
+	});
 });
 
 app.configure('development', function(){
@@ -69,7 +76,7 @@ app.listen(port);
 var Eagle = require('node-eagle').Eagle;
 var eagle = new Eagle(app, app.store);
 
-config.configIO(eagle.io);
+eagle.nsInit();
 
 // Setup the errors
 app.error(function(err, req, res, next){
@@ -85,21 +92,13 @@ app.error(function(err, req, res, next){
     }
 });
 
-// Global Default Locals
-app.locals({ 
-	title : 'Game for game jam',
-	description: 'A game for HTML5 game jam',
-	author: 'Boisgames',
-	serverURL: app.set('server-url');
-});
-
 // ===== router =====
 app.get('/', function main (req, res, next) {
 	
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
 	
 	if( ua.platform.is.Phone )
-		res.render("mobile", mobileType: ua.platform.name);
+		res.render("mobile", { mobileType: ua.platform.name });
 	else
 		res.render("index");
 })
