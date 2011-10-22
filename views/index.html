@@ -1,9 +1,34 @@
 <script type="text/javascript" src="js/libs/crafty.js" ></script>
 <script defer src="/socket.io/socket.io.js"></script>
-<script type="text/javascript" src="/browserify.js"></script>
 <script type="text/javascript" charset="utf-8">
 	$(function(){
-		//TODO
+		console.log('Page Loaded');
+		var output = $("#output");
+	
+		var sio = window.sio = io.connect('<%= serverURL %>');
+		sio.on('connect', function () {
+			output.append('Server Connected ! -- ');
+
+			sio.emit('roomjoin', function (roomid) {
+				output.append('Room ID: '+ roomid +'<br/>');
+			});
+			
+			sio.on('game start', function () {
+				var game = require('./main');
+				game.start("gamecanvas");
+				$('#selector').empty();
+			}).on('disconnect', function (msg) {
+				output.append('Server Disconnected! <br/>');
+			});
+		});
+
+		// Set global error handler
+		sio.socket.on('error', function(msg) {
+			output.append('Server Error', msg);
+		});
 	});
 </script>
-<canvas id="game"> </canvas>
+
+<canvas id="gamecanvas"></canvas>
+<div id="selector"></div>
+<div id="output"></div>

@@ -7,7 +7,8 @@
  * Module dependencies.
  */
 var express = require('express'),
-	uaParse = require('./ext/uaparse').uaParse;
+	uaParse = require('./ext/uaparse').uaParse,
+	MemoryStore = express.session.MemoryStore;
 
 //Local App Variables
 var port = process.env.PORT || 3000;
@@ -41,8 +42,10 @@ app.configure(function(){
 	// Start config app
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
+	app.store = new MemoryStore();
 	app.use(express.session({
 		secret: 'gamejam_fj082hA$1sd*FD11sa',
+		store: app.store
 	}));
 	
 	app.use(express.methodOverride());
