@@ -1,0 +1,18 @@
+{
+    "name": "multisnsMUD"
+  , "description": "Multi SNS Platform MUD Game"
+  , "author": "Tang Bo Hao<btspoony@gmail.com> (http://blog.boisgames.com)"
+  , "repository": { "type":"git", "url":"git://github.com/btspoony/MultiSNSMUD.git"}
+  , "version": "0.1.0"
+  , "private": true
+  , "engines" : { "node" : "0.4 || 0.5" }
+  , "dependencies": {
+      "express": ">=2.4.4"
+    , "mongoose": ">= 2.0.4"
+    , "ejs": ">= 0.3.1"
+    , "socket.io" : ">=0.8.0"
+	, "express-expose": ">=0.2.0"
+	, "browserify": ">=1.4.7"
+	, "snsclient": ">= 0.1.0"
+  }
+}
