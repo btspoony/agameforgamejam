@@ -8,7 +8,7 @@ function setEntityInfo (entity,data) {
 	for(key in data){
 		if(!data.hasOwnProperty(key)) continue;
 		
-		if(typeof entity[key]) !== 'undefined')
+		if(typeof entity[key] !== 'undefined')
 			entity[key] = data[key];
 	}
 };
@@ -175,7 +175,7 @@ Crafty.c('Monster', {
 	},
 	_moveToTarget: function () {
 		return this;
-	}
+	},
 	playMove: function () {
 		this._status = "move";
 		// if(!this.isPlaying()){
@@ -289,7 +289,7 @@ Crafty.c("Ammo",{
 		var dx = this._speed * Math.cos(this.rotation);
 		var dy = this._speed * Math.sin(this.rotation);
 		
-		this.bind("EnterFrame", function ) {
+		this.bind("EnterFrame", function() {
 			this.x += dx;
 			this.y += dy;
 			if(this.x< 0 || this.y <0 || this.x > STAGEWIDTH || this.y > STAGEHEIGHT){
