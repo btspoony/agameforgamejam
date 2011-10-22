@@ -95,6 +95,8 @@ Crafty.c("MonsterControl",{
 	 * Initialization
 	 */
 	init: function() {		
+		this.requires('Persist');
+		
 		// Global Status Check
 		this.bind("Change",function(){
 			var won = this._iswin();
@@ -207,7 +209,7 @@ Crafty.c('Monster', {
 Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
-		this.requires("2D, Canvas, Image, Persist, HeroControll");
+		this.requires("2D, Canvas, Persist, HeroControll");
 	},
 	reset: function() {
 		setEntityInfo(this, staticInfo.heroInitPos);
@@ -220,7 +222,7 @@ Crafty.c('Hero', {
 	playHitted: function () {
 		return this;
 	},
-	playFiring: function () {
+	playAttack: function () {
 		return this;
 	},
 	playDie: function () {
@@ -228,15 +230,24 @@ Crafty.c('Hero', {
 	},
 });
 
+Crafty.c('HeroControll',{
+	init: function () {
+		this.requires("Fourway")
+		.fourway(1.5);
+	},
+});
+
 Crafty.c('hero1', {
 	_lastShootTime: 0,
 	init: function () {
-		this.requires("Hero");
-		this.image("images/hero1.png");
+		this.requires("Hero, Color");
+		// attr
 		this.attr("skillInterval", 10);
-		return this;
+		
+		this.color("red");
+		this.attr({w:10,h:10});
 	},
-	shoot: function () {
+	attack: function () {
 		var interval = this.attr("skillInterval");
 		if(this.frame - this._lastShootTime > interval){
 			this._lastShootTime = this.frame;
@@ -247,13 +258,20 @@ Crafty.c('hero1', {
 	},
 });
 
-Crafty.c('HeroControll',{
+
+Crafty.c('hero2', {
 	init: function () {
-		this.requires("Fourway");
-		this.fourway(10);
+		this.requires("Hero, Color");
+		// attr
+		this.attr("skillInterval", 10);
+		
+		this.color("red");
+		this.attr({w:10,h:10});
+	},
+	attack: function () {
+		return this;
 	},
 });
-
 
 // ======= FX Component ========
 Crafty.c("SkillFX",{
@@ -309,7 +327,11 @@ Crafty.c("Ammo",{
 var currentLevel;
 var heroEntities = [];
 
-var gameinit = function ( heroes ) {
+var gameStarted = false;
+var can_start = true;
+var herocontroller = [0,0,0,0];
+
+function gameinit( heroes ) {
 	currentLevel = 1;
 	
 	Crafty.scene("Level1",function () {
@@ -326,6 +348,7 @@ var gameinit = function ( heroes ) {
 			Crafty.init(STAGEWIDTH,STAGEHEIGHT);
 
 			// Crafty.background("url('"+imgPath+"bg_main.png') repeat-y"); // Set Game Background
+			Crafty.background("#333"); // Set Game Background
 
 			// Load Game Sprite Sprites
 			// Crafty.sprite(160,115,'images/monsterAnim.png',{'monsterSprite':[0,0]});
@@ -333,6 +356,7 @@ var gameinit = function ( heroes ) {
 			// ========== Here create presist entities
 			// Create Heroes
 			for(var k in heroes){
+				gamelog("Create Hero: "+ heroes[k]);
 				heroEntities[k] = Crafty.e(heroes[k]);
 			}
 			
@@ -351,9 +375,12 @@ var gameinit = function ( heroes ) {
 	      //uh oh, error loading
 	    }
 	);
+	
+	// set game started
+	gameStarted = true;
 };
 
-var nextLevel = function nextLevel() {
+function nextLevel() {
 	if(currentLevel<10){
 		Crafty.scene("Level"+currentLevel); //go to main scene
 		
@@ -362,15 +389,16 @@ var nextLevel = function nextLevel() {
 		});
 		
 		// Reset all presist entity
-		Crafty("*").each(function(){
+		Crafty("Persist").each(function(){
 			this.reset();
-			this.start();
+			if(this.hasOwnProperty('start')) this.start();
 		});
 		
 		currentLevel++;
 	}else{
 		//TODO End Game
 		Crafty.stop();
+		gameStarted = false
 	}
 }
 
@@ -385,8 +413,6 @@ function updateUserHP (id, hp) {
 }
 
 $(function(){
-	var herocontroller = [0,0,0,0];
-	var can_start = false;
 	console.log('Page Loaded');
 	output = $("#output");
 
@@ -399,18 +425,22 @@ $(function(){
 		});
 		
 		sio.on('heroconnect', function (data) { // controller connect
-			var hero = Number(data.hero.substr(4));
-			var session = data.session;
-			
-			if(herocontroller.indexOf(session) < 0){
-				can_start = true;
-				herocontroller[hero] = session;
-				$('#hero'+hero).addClass('hero'+hero+'_on');
-				output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
+			if(!gameStarted){
+				var hero = Number(data.hero.substr(4));
+				var session = data.session;
+
+				if(herocontroller.indexOf(session) < 0){
+					can_start = true;
+					herocontroller[hero] = session;
+					$('#hero'+hero).addClass('hero'+hero+'_on');
+					output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
+				}				
 			}
 		}).on('game control', function (data) {
-			var hero = herocontroller.indexOf( data.user.id );
-			console.log(data.msg.type);
+			if(gameStarted){
+				var hero = herocontroller.indexOf( data.user.id );
+				console.log(data.msg.type);	
+			}
 		}).on('disconnect', function (msg) {
 			output.append('Server Disconnected! <br/>');
 		}).on('logger', function(data) {
@@ -419,12 +449,19 @@ $(function(){
 		
 		// when start remove all things
 		$('#start_btn').click(function () {
-			if(can_start){
+			if(!gameStarted && can_start){
 				$('#hero_selector').addClass('hidden');
-				$('#gamecanvas').removeClass('hidden');
-				// Game Start
+				$('#cr-stage').removeClass('hidden');
+				$('#gameui').removeClass('hidden');
 				
-				// gameinit(heroes);
+				// Game Start
+				var heroes = [];
+				herocontroller.forEach(function(ele, index){
+					if(ele !== 0){
+						heroes.push("hero"+index);
+					}
+				});
+				gameinit(heroes);
 			}
 		});
 	});
