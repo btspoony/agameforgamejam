@@ -77,12 +77,6 @@ exports.uaParse = function(uaStr) {
 	p.is.iOS = p.iphone || p.ipad || p.ipod;
 
 	/**
-	 * @property Standalone Detects when application has been saved to homescreen.
-	 * @type {Boolean}
-	 */
-	p.is.Standalone = !!navigator.standalone;
-
-	/**
 	 * @property MultiTouch Returns multitouch availability.
 	 * @type {Boolean}
 	 */

@@ -7,7 +7,8 @@
  * Module dependencies.
  */
 var express = require('express'),
-	config = require('config');
+	config = require('./config'),
+	uaParse = require('./ext/uaparse').uaParse;
 
 //Local App Variables
 var port = process.env.PORT || 3000;
@@ -29,6 +30,14 @@ app.configure(function(){
 	app.set('views', app.path + '/views');
 	app.register('.html', require('ejs'));
 	app.set('view engine', 'html');
+	
+	app.use(require('browserify')({
+	    mount : '/browserify.js',
+	    require : app.path + '/client/main',
+	}));
+	
+	// using effcient favicon
+	app.use(express.favicon(app.path + '/public/favicon.ico'));
 	
 	// Start config app
 	app.use(express.bodyParser());
@@ -57,7 +66,7 @@ app.listen(port);
 
 // ======= Now Server Started ========
 
-var Eagle = require('eagle').Eagle;
+var Eagle = require('node-eagle').Eagle;
 var eagle = new Eagle(app, app.store);
 
 config.configIO(eagle.io);
@@ -87,7 +96,7 @@ app.locals({
 app.get('/', function main (req, res, next) {
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
 	
-	if( ua.is.Phone )
+	if( ua.platform.is.Phone )
 		res.render("mobile");
 	else
 		res.render("index");
