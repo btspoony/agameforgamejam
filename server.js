@@ -89,7 +89,8 @@ app.error(function(err, req, res, next){
 app.locals({ 
 	title : 'Game for game jam',
 	description: 'A game for HTML5 game jam',
-	author: 'Boisgames'
+	author: 'Boisgames',
+	serverURL: app.set('server-url');
 });
 
 // ===== router =====
