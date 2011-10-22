@@ -2,6 +2,7 @@
 <script defer src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
 	$(function(){
+		var herocontroller = {};
 		console.log('Page Loaded');
 		var output = $("#output");
 	
@@ -17,6 +18,8 @@
 				var hero = data.hero;
 				var session = data.session;
 				output.append(hero + ' connected ! session is "'+session+'" <br/>');
+				herocontroller[hero] = session;
+				$('#'+hero).removeClass('negative').addClass('positive');
 			}).on('game start', function () {
 				//TODO
 			}).on('disconnect', function (msg) {
@@ -41,16 +44,16 @@
 <div id="hero_selector">
 	<div id="title"></div>
 	<ul class="buttons">
-		<button class="choosebtn negative" name="hero1">
+		<button class="choosebtn negative" id="hero1">
 			HERO1
 		</button>
-		<button class="choosebtn negative" name="hero1">
+		<button class="choosebtn negative" id="hero2">
 			HERO2
 		</button>
-		<button class="choosebtn negative" name="hero1">
+		<button class="choosebtn negative" id="hero3">
 			HERO3
 		</button>
-		<button class="choosebtn negative" name="hero1">
+		<button class="choosebtn negative" id="hero4">
 			HERO4
 		</button>
 	</ul>
