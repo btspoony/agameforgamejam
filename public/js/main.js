@@ -23,6 +23,12 @@ function randInArray (arr) {
 	return arr[rand];
 }
 
+function distance (entityA, entityB) {
+	var dx = entityA.x - entityB.x,
+		dy = entityA.y - entityB.y;
+	return Math.sqrt(dx*dx +dy*dy);
+}
+
 var gamelog = function(str) {
 	output.append(str+"<br />");
 };
@@ -57,9 +63,9 @@ var testData = {
 	maxMons : 50,
 	spawnSpeed : 10,
 	monsTotal : {
-		"A" : 10,
-		"B" : 20,
-		"C" : 5,
+		"MonsterA" : 30,
+		"MonsterB" : 40,
+		"MonsterC" : 15,
 	},
 };
 
@@ -114,21 +120,25 @@ Crafty.c("MonsterControl",{
 		return this;
 	},
 	start: function () { // Game Start
-		this._lastSpawnFrame = this.frame;
-		this._lastFrame = this.frame + 1;
-		this.bind('EnterFrame', function () {
-			var frame = this.frame;
-			if((frame - this._lastSpawnFrame) % this._spawnSpeed == 0){
+		var frame = Crafty.frame();
+		this._lastSpawnFrame = frame;
+		this._lastFrame = frame + 1;
+		this.bind('EnterFrame', function (data) {
+			var frame = data.frame;
+			if((frame - this._lastSpawnFrame) % (this._spawnSpeed * 10) == 0){
 				this._lastSpawnFrame = frame;
 				
 				// Create new Monster
 				var spawnLeft = randInt(4)+1,
 					total = this._monsTotal,
 				 	randPos = randInArray(staticInfo.monsterSpawnPoint),
-					name;
+					name, rndX, rndY;
 				while(total.length>0 && spawnLeft>0 ){
+					gamelog("New Monster!");
+					rndX = randInt(10)-5;
+					rndY = randInt(10)-5;
 					name = this._monsTotal.shift();
-					Crafty.e(name).spawn(randPos[0], randPos[1]);
+					Crafty.e(name).spawn(randPos[0]+rndX, randPos[1]+rndY);
 					spawnLeft--;
 				}
 			}
@@ -147,9 +157,8 @@ Crafty.c("MonsterControl",{
 	},
 });
 
-// Monster
+//  ======= Monsters Component ==========
 Crafty.c('Monster', {
-	_status: "",
 	init: function () {
 		this.requires("2D, Canvas, Collision, SpriteAnimation");
 		this.visible = false;
@@ -157,25 +166,56 @@ Crafty.c('Monster', {
 	spawn: function (x, y) {
 		this.x = x;
 		this.y = y;
+		this._movement = {x:0, y:0};
 		this.visible = true;
 		
 		// Die check
 		this.bind('EnterFrame', function () {
 			this._moveToTarget();
+
+			hittest = this.hit("Hero");
+			if(hittest.length == 0){
+				this.x += dx;
+				this.y += dy;
+			}else{
+				hittest.forEach(function(ele){
+					ele.obj.forEach(function (entity) {
+						entity.beHitted(this.attr("atk"));
+					})
+				});
+			}
+			
 			if(this.attr('hp') <= 0){
 				this.playDie();
 			}
 		});
 		
 		//collision
-		this.collision().onHit("Ammo", function () {
+		this.collision().onHit("Ammo", function (data) {
 			// Be check HP
+			data.forEach(function(ele){
+				ele.obj.forEach(function (entity) {
+					entity.destroy();
+				})
+			});
 		});
 		
 		this.playMove();
 		return this;
 	},
 	_moveToTarget: function () {
+		var mindist = 0;
+		heroEntities.forEach(function(entity){
+			var dist = distance(entity, this);
+			if( mindist == 0 || dist < mindist){
+				mindist = dist;
+				this._target = entity;
+			}
+		});
+		var angle = Math.atan2(this._target.y-this.y, this._target.x-this.x);
+		this._movement.x = Math.round(Math.cos(angle) * 1000 * this.attr('speed'))/1000;
+		this._movement.y = Math.round(Math.sin(angle) * 1000 * this.attr('speed'))/1000;
+		
 		return this;
 	},
 	playMove: function () {
@@ -205,12 +245,46 @@ Crafty.c('Monster', {
 	},
 });
 
-// Hero - Persist Entity
+Crafty.c('MonsterA', {
+	init: function () {
+		this.requires('Monster, Color');
+		this.color("blue").attr({w:10,h:10});
+		
+		// monster hp
+		this.attr('hp', 100);
+		this.attr('speed', 20);
+		this.attr('atk', 5);
+	},
+});
+Crafty.c('MonsterB', {
+	init: function () {
+		this.requires('Monster, Color');
+		this.color("green").attr({w:10,h:10});
+		
+		// monster hp
+		this.attr('hp', 200);
+		this.attr('speed', 10);
+		this.attr('atk', 15);
+	},
+});
+Crafty.c('MonsterC', {
+	init: function () {
+		this.requires('Monster, Color');
+		this.color("pink").attr({w:10,h:10});
+		
+		// monster hp
+		this.attr('hp', 500);
+		this.attr('speed', 5);
+		this.attr('atk', 30);
+	},
+});
+
+//  ======= Hero - Persist Entity ==========
 Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
-		this.requires("2D, Canvas, Persist, HeroRemoteController");
-		// this.requires("2D, Canvas, Persist, HeroControll");
+		// this.requires("2D, Canvas, Persist, HeroRemoteController");
+		this.requires("2D, Canvas, Persist, HeroControll");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -224,6 +298,11 @@ Crafty.c('Hero', {
 		setEntityInfo(this, staticInfo.heroInitPos);
 		this.attr('hp', 100);
 		return this;
+	},
+	beHitted: function ( atk ) {
+		var hpnow = this.attr('hp');
+		this.attr('hp', hpnow - atk);
+		this.playHitted();
 	},
 	playMove: function () {
 		return this;
@@ -314,7 +393,7 @@ Crafty.c('hero2', {
 		this.color("red");
 		this.attr({w:25,h:25});
 	},
-	sprash: function () {
+	shoot: function () {
 		return this;
 	},
 });
@@ -356,7 +435,6 @@ Crafty.c("Ammo",{
 			this.x += dx;
 			this.y += dy;
 			if(this.x< 0 || this.y <0 || this.x > STAGEWIDTH || this.y > STAGEHEIGHT){
-				gamelog("Ammo Destroyed");
 				this.destroy();
 			}
 		});
