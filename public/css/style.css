@@ -209,12 +209,11 @@ td { vertical-align: top; }
 	-webkit-box-orient:horizontal;
 	-webkit-box-align:start;
 	-webkit-box-pack:start;
-	width: 960px;
-	height: 640px;
 }
 
 #gamecanvas {
-	width: 100%;
+	width: 960px;
+	height: 640px;
 }
 
 #output {
