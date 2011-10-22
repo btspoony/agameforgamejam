@@ -7,6 +7,7 @@
  * Module dependencies.
  */
 var express = require('express'),
+	crypto = require('crypto'),
 	uaParse = require('./ext/uaparse').uaParse,
 	MemoryStore = express.session.MemoryStore;
 
@@ -79,7 +80,7 @@ app.listen(port);
 var Eagle = require('node-eagle').Eagle;
 var eagle = new Eagle(app, app.store);
 
-eagle.nsInit();
+eagle.nsInit(require('./lib/GameClient'));
 
 // Setup the errors
 app.error(function(err, req, res, next){
@@ -95,12 +96,20 @@ app.error(function(err, req, res, next){
     }
 });
 
+var md5 = function(str, encoding){
+  return crypto
+    .createHash('md5')
+    .update(str)
+    .digest(encoding || 'hex');
+};
+
 // ===== router =====
 app.get('/', function main (req, res, next) {
 	
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
 	
-	if( ua.platform.is.Phone )
+	// if( ua.platform.is.Phone )
+	if( ua.browser.safari )
 		res.render("mobile", { mobileType: ua.platform.name, platform: ua.platform });
 	else
 		res.render("index");
@@ -108,6 +117,12 @@ app.get('/', function main (req, res, next) {
 
 // ======= Restful ========
 app.get('/connect/:id', function (req, res, next) {
+	var roomid = eagle.rooms[0];
+	
+	var type = "heroconnect";
+	var data = { hero: req.params.id, session: md5(req.sessionID) };
+	
+	eagle.roomNotify(null, roomid, type, data);
 	res.json({ data:"OK"}, 200);
 })
 

@@ -2,33 +2,72 @@
 <script defer src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" charset="utf-8">
 	$(function(){
+		var herocontroller = [0,0,0,0];
+		var can_start = false;
 		console.log('Page Loaded');
 		var output = $("#output");
 	
-		var sio = window.sio = io.connect('<%= serverURL %>');
+		var sio = window.sio = io.connect();
 		sio.on('connect', function () {
-			output.append('Server Connected ! -- ');
+			output.append('Server Connected ! <br/>');
 
 			sio.emit('roomjoin', function (roomid) {
 				output.append('Room ID: '+ roomid +'<br/>');
 			});
 			
-			sio.on('game start', function () {
-				var game = require('./main');
-				game.start("gamecanvas");
-				$('#selector').empty();
+			sio.on('heroconnect', function (data) { // controller connect
+				var hero = Number(data.hero.substr(4));
+				var session = data.session;
+				
+				if(herocontroller.indexOf(session) < 0){
+					can_start = true;
+					herocontroller[hero] = session;
+					$('#hero'+hero).removeClass('negative').addClass('positive');
+					output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
+				}
+			}).on('game start', function () {
+				//TODO
 			}).on('disconnect', function (msg) {
 				output.append('Server Disconnected! <br/>');
+			});
+			
+			// when start remove all things
+			$('#start_btn').click(function () {
+				if(can_start){
+					console.log('START');
+					// var game = require('./main');
+					// game.start("gamecanvas");
+					$('#hero_selector').addClass('hidden');
+					$('#gamecanvas').removeClass('hidden');
+				}
 			});
 		});
 
 		// Set global error handler
 		sio.socket.on('error', function(msg) {
-			output.append('Server Error', msg);
+			output.append('Server Error '+msg+'<br/>');
 		});
 	});
 </script>
 
-<canvas id="gamecanvas"></canvas>
-<div id="selector"></div>
-<div id="output"></div>
+<div id="hero_selector">
+	<div id="title"></div>
+	<ul class="buttons">
+		<button class="choosebtn negative" id="hero1">
+			HERO1
+		</button>
+		<button class="choosebtn negative" id="hero2">
+			HERO2
+		</button>
+		<button class="choosebtn negative" id="hero3">
+			HERO3
+		</button>
+		<button class="choosebtn negative" id="hero4">
+			HERO4
+		</button>
+	</ul>
+	<div id="start_btn">START</div>
+</div>
+<div id="output"> Output: <br/></div>
+
+<canvas id="gamecanvas" class='hidden'></canvas>

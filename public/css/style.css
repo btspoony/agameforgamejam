@@ -209,18 +209,19 @@ td { vertical-align: top; }
 	-webkit-box-orient:horizontal;
 	-webkit-box-align:start;
 	-webkit-box-pack:start;
-	
+}
+
+#gamecanvas {
 	width: 960px;
 	height: 640px;
 }
 
-#gamecanvas {
-	width: 100%;
-}
-
 #output {
-	width: 100%;
-	height: 100px;
+	position: absolute;
+	right: 0px;
+	width: 250px;
+	height: 100%;
+	border: 1px solid black;
 }
 
 .buttons a, .buttons button{
