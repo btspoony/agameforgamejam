@@ -209,7 +209,7 @@ Crafty.c('Monster', {
 Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
-		this.requires("2D, Canvas, Persist, HeroControll");
+		this.requires("2D, Canvas, Persist, HeroControll, HeroRemoteController");
 	},
 	reset: function() {
 		setEntityInfo(this, staticInfo.heroInitPos);
@@ -234,6 +234,36 @@ Crafty.c('HeroControll',{
 	init: function () {
 		this.requires("Fourway")
 		.fourway(1.5);
+	},
+});
+
+Crafty.c('HeroRemoteController',{
+	init: function () {
+		this.bind("EnterFrame",function() {
+			// if (this.disableControls) return;
+	
+			if(this._movement.x !== 0) {
+				this.x += this._movement.x;
+				this.trigger('Moved', {x: this.x - this._movement.x, y: this.y});
+			}
+			if(this._movement.y !== 0) {
+				this.y += this._movement.y;
+				this.trigger('Moved', {x: this.x, y: this.y - this._movement.y});
+			}
+		});
+	},
+	move: function( data ){
+		
+		this.trigger('NewDirection', this._movement);
+		
+		this._movement.x = data.vx;
+		this._movement.y = data.vy;
+		
+		return this;
+	},
+        
+	attack: function(){
+		
 	},
 });
 
@@ -438,8 +468,18 @@ $(function(){
 			}
 		}).on('game control', function (data) {
 			if(gameStarted){
-				var hero = herocontroller.indexOf( data.user.id );
-				console.log(data.msg.type);	
+				try{
+					var hero = Number(herocontroller.indexOf( data.user.id ));
+					for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
+					gamelog("hero="+(hero-1));
+					if(hero === -1) return;
+					var entity = heroEntities[ "hero" + (hero-1) ];
+					gamelog(entity);
+					gamelog(data.msg.type);
+					entity[ data.msg.type ].apply(entity, [data.msg]);
+				}catch(ex){
+					gamelog(ex.message);
+				}
 			}
 		}).on('disconnect', function (msg) {
 			output.append('Server Disconnected! <br/>');

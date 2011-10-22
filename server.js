@@ -118,7 +118,7 @@ app.get('/connect/:id', function (req, res, next) {
 	var data = { hero: req.params.id, session: req.sessionID };
 	
 	eagle.roomNotify(null, roomid, type, data);
-	res.json({ data:"OK"}, 200);
+	res.json({ session: req.sessionID }, 200);
 })
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

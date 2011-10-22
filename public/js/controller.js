@@ -24,7 +24,7 @@ $(function() {
 				console.log(data);
 			else
 			{
-				console.log('OK!');
+				localStorage.setItem("session", data.session);
 				
 				$("#controller").show();
 				$("#mobilemain").hide();
@@ -39,9 +39,7 @@ $(function() {
 	////////////////////////////////////////////////////////////////////////////////////
 	// Controlling Posting
 	//
-	
-	
-	if( "<%= platform.is.iOS %>" === "true" )
+	// if( platform.is.iOS )
 	{
 		// safari ios 4.2+ only -_-|||||
 		var oldAccX,oldAccY,oldAccZ;
@@ -64,7 +62,7 @@ $(function() {
 					post("attack");
 				}
 			}catch(ex){
-				log( ex.message );
+				logger( ex.message );
 			}
 
 		}
@@ -74,24 +72,26 @@ $(function() {
 	var oldx, oldy, posx, posy, oldpx, oldpy, isPress, hold;
 	var oldvx, oldvy, timer, count;
 	var currx, curry, pressx, pressy;
-	var isMulTouch;
+	// var isMulTouch;
 
 	var sid = setInterval(function() {
 		
 		// if(isMulTouch) post("attack");
-
 		if(!isPress) return;
 
 		if( oldx == currx && oldy == curry )
 		{
 			if( ++hold == 3 )
 			{
-				console.log("stop");
+				logger("stop");
 				
 				posx = currx;
 				posy = curry;
 				var vx = posx - oldpx;
 				var vy = posy - oldpy;
+				var len = Math.sqrt(vx*vx + vy*vy);
+				vx = vx / len;
+				vy = vy / len;
 				oldpx = posx;
 				oldpy = posy;
 
@@ -134,8 +134,9 @@ $(function() {
 	function ontouchstart (e) {
 		try{
 			isPress = true;
+			logger(isPress);
 		
-			isMulTouch = getMulTouch(e);
+			// isMulTouch = getMulTouch(e);
 			
 			// var t="";
 			// for(var i in e.originalEvent.touches[0]) if(typeof(e.originalEvent.touches[0])!=="function") t+=i+":"+e.originalEvent.touches[0][i]+"\n";
@@ -171,7 +172,7 @@ $(function() {
 		try{
 
 			isPress = false;
-			isMulTouch = false;
+			// isMulTouch = false;
 
 			// test click attack
 			if( pressx == currx && pressy == curry )
@@ -186,39 +187,36 @@ $(function() {
 		}
 	}
 	
-	if( "<%= platform.is.iOS %>" === "true" )
+	// if( platform.is.iOS )
 	{
 		$("#area").bind("touchstart", ontouchstart);
 		$("#area").bind("touchmove", ontouchmove);
 		$("#area").bind("touchend", ontouchend);
 	}
-	else
-	{
-		$("#area").bind("mousedown", ontouchstart);
-		$("#area").bind("mousemove", ontouchmove);
-		$("#area").bind("mouseup", ontouchend);
-	}
+	// else
+	// {
+	// 	$("#area").bind("mousedown", ontouchstart);
+	// 	$("#area").bind("mousemove", ontouchmove);
+	// 	$("#area").bind("mouseup", ontouchend);
+	// }
 	
 	function getPageX (e) {
-		if( "<%= platform.is.iOS %>" === "true" )
+		// if( "<%= platform.is.iOS %>" === "true" )
 			return e.originalEvent.touches[0].pageX;
-		else
-			return e.originalEvent.pageX;
-		// body...
+		// else
+			// return e.originalEvent.pageX;
 	}
 	function getPageY (e) {
-		if( "<%= platform.is.iOS %>" === "true" )
+		// if( "<%= platform.is.iOS %>" === "true" )
 			return e.originalEvent.touches[0].pageY;
-		else
-			return e.originalEvent.pageY;
-		// body...
+		// else
+			// return e.originalEvent.pageY;
 	}
 	function getMulTouch (e) {
-		if( "<%= platform.is.iOS %>" === "true" )
+		// if( "<%= platform.is.iOS %>" === "true" )
 			return e.originalEvent.touches && e.originalEvent.touches.length > 1;
-		else
-			return false;
-		// body...
+		// else
+			// return false;
 	}
 	
 	var lastPostTime = getTimer();
@@ -231,29 +229,33 @@ $(function() {
 		// client render code
 		
 		// limit posting times
-		// var newTimer = getTimer();
-		// if( newTimer - lastPostTime < postInterval ) return;
-		// lastPostTime = newTimer;
+		var newTimer = getTimer();
+		if( newTimer - lastPostTime < postInterval ) return;
+		lastPostTime = newTimer;
 		
 		// send data to socketio
+		var session = localStorage.getItem("session");
+		
 		$.post("/eagleapi/room/rand",{
 			type: 'game control',
 			gamedata: { 
-				user: { id: $.cookie('connect.sid') }, 
+				user: { id: session }, 
 				msg: { type:type, data: data || {} }
 			},
-			sessionKey: $.cookie('connect.sid')
+			sessionKey: session
 		});
 	}
 	
 	function logger(msg){
+		var session = localStorage.getItem("session");
+		
 		$.post("/eagleapi/room/rand",{
 			type: 'logger',
 			gamedata: { 
-				user: { id: $.cookie('connect.sid') }, 
+				user: { id: session }, 
 				msg: msg
 			},
-			sessionKey: $.cookie('connect.sid')
+			sessionKey: session
 		});
 	}
 	
