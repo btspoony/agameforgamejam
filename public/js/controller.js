@@ -14,7 +14,7 @@ $(function() {
 	setTimeout(updateLayout, 100);
 	
 	$(".btn").click(function() {
-		var id = $(this).attr("name");
+		var id = $(this).attr("id");
 		
 		logger(id);
 		
