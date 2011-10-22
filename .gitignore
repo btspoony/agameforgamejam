@@ -13,16 +13,9 @@ build/*
 *.xcworkspace
 xcuserdata
 
-# ==== android noise part ======
-# built application files
-*.apk
-*.ap_
-
-# files for the dex VM
-*.dex
-
-# Java class files
-*.class
+# svn & cvs
+.svn
+CVS
 
 # generated files
 bin/
@@ -31,23 +24,9 @@ gen/
 # Local configuration file (sdk path, etc)
 local.properties
 
-# ===== python/Django =====
-*.log
-*.pot
-*.py[co]
-local_settings.py
+# ===== Node ====
+node_modules/
 
-# ===== Other ====
-*/restTest
-src/server/node_modules/*
-
-# ===== Flash  ====
-# Build and Release Folders
-bin-debug/
-bin-release/
-
-# Project property files
-.actionScriptProperties
-.flexProperties
-.settings/
-.project
+# textmate
+*.tmproj
+key.js
