@@ -17,7 +17,7 @@ var app = module.exports = express.createServer();
 app.path = __dirname;
 
 // Configuration
-var serverurl =  'http://localhost:3000/';
+var serverurl =  'http://'+process.env.SERVER+":"+port+"/" || 'http://localhost:3000/';
 
 // enable log only on development mode
 app.configure("development", function(){
