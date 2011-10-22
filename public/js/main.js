@@ -209,7 +209,16 @@ Crafty.c('Monster', {
 Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
-		this.requires("2D, Canvas, Persist, HeroControll, HeroRemoteController");
+		this.requires("2D, Canvas, Persist, HeroRemoteController");
+		// this.requires("2D, Canvas, Persist, HeroControll");
+		
+		// Set auto rotate
+		this.bind('NewDirection', function(dir){
+			var x = dir.x;
+			var y = dir.y;
+			this.rotation = Math.atan2(y,x) / Math.PI * 180;
+			// gamelog("rotation = "+ this.rotation);
+		});
 	},
 	reset: function() {
 		setEntityInfo(this, staticInfo.heroInitPos);
@@ -233,7 +242,13 @@ Crafty.c('Hero', {
 Crafty.c('HeroControll',{
 	init: function () {
 		this.requires("Fourway")
-		.fourway(1.5);
+		.fourway(1.5)
+		.bind('KeyDown', function(data) {
+			var key = data.key;
+			if(key === Crafty.keys["J"]){
+				this.shoot();
+			}
+		});
 	},
 });
 
@@ -275,14 +290,15 @@ Crafty.c('hero1', {
 		this.attr("skillInterval", 10);
 		
 		this.color("red");
-		this.attr({w:10,h:10});
+		this.attr({w:25, h:25});
 	},
-	attack: function () {
+	shoot: function () {
 		var interval = this.attr("skillInterval");
-		if(this.frame - this._lastShootTime > interval){
-			this._lastShootTime = this.frame;
+		var frame = Crafty.frame();
+		if(frame - this._lastShootTime > interval){
+			this._lastShootTime = frame;
 			// Spawn new Ammo
-			Cracy.e("Ammo").from(this);
+			Crafty.e("Ammo").from(this);
 		}
 		return this;
 	},
@@ -296,9 +312,9 @@ Crafty.c('hero2', {
 		this.attr("skillInterval", 10);
 		
 		this.color("red");
-		this.attr({w:10,h:10});
+		this.attr({w:25,h:25});
 	},
-	attack: function () {
+	sprash: function () {
 		return this;
 	},
 });
@@ -324,26 +340,24 @@ Crafty.c("SkillFX",{
 });
 
 Crafty.c("Ammo",{
-	_speed: 10,
+	_speed: 5,
 	init: function () {
 		this.requires("2D, Canvas, Color");
 		setEntityInfo(this, staticInfo.ammo);
-		this.color("green");
+		this.color("white");
 	},
 	from: function (hero) {
 		this.x = hero.x;
 		this.y = hero.y;
 		this.rotation = hero.rotation;
-		var dx = this._speed * Math.cos(this.rotation);
-		var dy = this._speed * Math.sin(this.rotation);
-		
+		var dx = Math.round(Math.cos(this.rotation*(Math.PI/180))*1000 * this._speed)/1000,
+			dy = Math.round(Math.sin(this.rotation*(Math.PI/180))*1000 * this._speed)/1000;
 		this.bind("EnterFrame", function() {
 			this.x += dx;
 			this.y += dy;
 			if(this.x< 0 || this.y <0 || this.x > STAGEWIDTH || this.y > STAGEHEIGHT){
-				this.delay(function(){
-					this.destroy();
-				}, 500);
+				gamelog("Ammo Destroyed");
+				this.destroy();
 			}
 		});
 		
