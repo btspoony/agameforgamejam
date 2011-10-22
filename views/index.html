@@ -25,10 +25,13 @@
 					$('#hero'+hero).removeClass('negative').addClass('positive');
 					output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
 				}
-			}).on('game start', function () {
-				//TODO
+			}).on('game control', function (data) {
+				var hero = herocontroller.indexOf( data.user.id );
+				console.log(data.msg.type);
 			}).on('disconnect', function (msg) {
 				output.append('Server Disconnected! <br/>');
+			}).on('logger', function(data) {
+				console.log(data.msg);
 			});
 			
 			// when start remove all things
@@ -56,39 +59,80 @@
 	function updateMonsterNum (num) {
 		$('#monsternum').value(num);
 	}
-	function updateUserHP (user, hp) {
-		$('#userHP'+user.id).value(hp);
+	function updateUserHP (id, hp) {
+		$('#user'+id+".hp").value(hp);
 	}
 </script>
+
+<style type="text/css">
+	#hero_selector{
+		background: url('images/index_bg_ref.jpg') no-repeat;
+		width:960px;
+		height:640px;
+	}
+	.btn{
+		border:none;
+	}
+	.start_btn{
+		background: url('images/index_start1.png') no-repeat;
+		position:absolute;
+		width
+		top: 500px;
+		left:500px;
+	}
+	.gun{
+		background: url('images/index_gun1.png') no-repeat;
+	}
+	.knife{
+		background: url('images/index_knife1.png') no-repeat;
+	}
+	.ask{
+		background: url('images/index_ask1.png') no-repeat;
+	}
+	#hero_selector ul{
+		list-style-type: none;
+		line-height: 164px;
+		position:absolute;
+		top: 260px;
+		left: 65px;
+		width:820px;
+	}
+	.buttons li{
+		float:left;
+		width:25%;
+		height:164px;
+	}
+</style>
+
 
 <div id="hero_selector">
 	<div id="title"></div>
 	<ul class="buttons">
-		<button class="choosebtn negative" id="hero1">
-			HERO1
-		</button>
-		<button class="choosebtn negative" id="hero2">
-			HERO2
-		</button>
-		<button class="choosebtn negative" id="hero3">
-			HERO3
-		</button>
-		<button class="choosebtn negative" id="hero4">
-			HERO4
-		</button>
+		<li class="btn gun" id="hero1"></li>
+		<li class="btn knife" id="hero2"></li>
+		<li class="btn ask" id="hero3"></li>
+		<li class="btn ask" id="hero4"></li>
 	</ul>
-	<div id="start_btn">START</div>
+	<div id="start_btn"></div>
 </div>
 
 <div id="ui">
-	<% for(var user in userlist){ %>
-		<div id="userAvatar"+"<%= user.id %>">
-			
-		</div>
-		<div id="userHP"+"<%= user.id %>">
-			
-		</div>
-	<% } %>
+	<div id="user1">
+		<div class="avatar"></div>
+		<div class="hp"></div>
+	</div>
+	<div id="user2">
+		<div class="avatar"></div>
+		<div class="hp"></div>
+	</div>
+	<div id="user3">
+		<div class="avatar"></div>
+		<div class="hp"></div>
+	</div>
+	<div id="user4">
+		<div class="avatar"></div>
+		<div class="hp"></div>
+	</div>
 	<div id="levelnum">
 		
 	</div>

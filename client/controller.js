@@ -1,5 +1,5 @@
 
-exports.start = function( area, ctrlCallback, ios ) {
+exports.start = function( area, ctrlCallback, ios,areaId ) {
 	
 	if( !ctrlCallback ) ctrlCallback = function(type) {};
 
@@ -9,24 +9,34 @@ exports.start = function( area, ctrlCallback, ios ) {
 	function attack(){
 		ctrlCallback( "attack" );
 	}
-	
-	if( ios === "true" )
+
+	if( String(ios) === "true" )
 	{
 		// safari ios 4.2+ only -_-|||||
 		var oldAccX,oldAccY,oldAccZ;
+		
+		var t = null;
 		window.ondevicemotion = function(e) {
+			
+		try{
 			var acc = e.accelerationIncludingGravity;
-			var dx = acc.x - ax;
-			var dy = acc.y - ay;
-			var dz = acc.z - az;
+		
+			var dx = acc.x - oldAccX;
+			var dy = acc.y - oldAccY;
+			var dz = acc.z - oldAccZ;
 			oldAccX = acc.x;
 			oldAccY = acc.y;
 			oldAccZ = acc.z;
 			
-			var dis2 = dx*dx + dy*dy + dz*dz;
-			if(dis2 > 1000){
+			var abs = Math.abs;
+			var shark = abs(dx) > 15 || abs(dy) > 15 || abs(dz) > 15;
+			if(shark){
 				attack();
 			}
+		}catch(ex){
+			ctrlCallback(ex.message);
+		}
+		
 		}
 	}
 		
@@ -97,11 +107,15 @@ exports.start = function( area, ctrlCallback, ios ) {
 		timer = new Date().getTime();
 		count  = 0;
 		hold = 0;
+		
+		e.preventDefault();
 	}
 	
 	function ontouchmove (e) {
 		currx = e.pageX;
 		curry = e.pageY;
+		
+		e.preventDefault();
 	}
 
 	function ontouchend (e) {
@@ -110,17 +124,30 @@ exports.start = function( area, ctrlCallback, ios ) {
 		
 		isPress = false;
 		
+		
+		
 		// test click attack
 		if( pressx == currx && pressy == curry )
 		{
 			attack();
 		}
 	}
-	area.onmousedown = ontouchstart;
-	area.onmousemove = ontouchmove;
-	area.onmouseup = ontouchend;
 	
-	// area.addEventListener("touchstart", ontouchstart, false);
-	// area.addEventListener("touchmove", ontouchmove, false);
-	// area.addEventListener("touchend", ontouchend, false);
+	//$(area).bind("touchstart", ontouchstart);
+	///*
+	if( ios === "true" )
+	{
+		area.addEventListener("touchstart", ontouchstart, false);
+		area.addEventListener("touchmove", ontouchmove, false);
+		area.addEventListener("touchend", ontouchend, false);
+	}
+	else
+	{
+		area.onmousedown = ontouchstart;
+		area.onmousemove = ontouchmove;
+		area.onmouseup = ontouchend;
+	}
+//	*/
+	
+	
 };

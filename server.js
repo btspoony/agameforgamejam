@@ -120,7 +120,7 @@ app.get('/connect/:id', function (req, res, next) {
 	var roomid = eagle.rooms[0];
 	
 	var type = "heroconnect";
-	var data = { hero: req.params.id, session: md5(req.sessionID) };
+	var data = { hero: req.params.id, session: req.sessionID };
 	
 	eagle.roomNotify(null, roomid, type, data);
 	res.json({ data:"OK"}, 200);

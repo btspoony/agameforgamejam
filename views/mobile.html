@@ -17,15 +17,63 @@
 	<div id="ready"></div>
 </div>
 
-<div id="controller" style="background-colro:red; width:400px; height:300px">
-	<div id="area"></div>
+<div id="controller" style="background-color:red; width:400px; height:300px">
+	<div id="area" style="width:100%;height:100%"></div>
 </div>
+
+<script type="text/javascript" charset="utf-8">
+	/**
+	 * jQuery Cookie plugin
+	 *
+	 * Copyright (c) 2010 Klaus Hartl (stilbuero.de)
+	 * Dual licensed under the MIT and GPL licenses:
+	 * http://www.opensource.org/licenses/mit-license.php
+	 * http://www.gnu.org/licenses/gpl.html
+	 *
+	 */
+	jQuery.cookie = function (key, value, options) {
+
+	    // key and at least value given, set cookie...
+	    if (arguments.length > 1 && String(value) !== "[object Object]") {
+	        options = jQuery.extend({}, options);
+
+	        if (value === null || value === undefined) {
+	            options.expires = -1;
+	        }
+
+	        if (typeof options.expires === 'number') {
+	            var days = options.expires, t = options.expires = new Date();
+	            t.setDate(t.getDate() + days);
+	        }
+
+	        value = String(value);
+
+	        return (document.cookie = [
+	            encodeURIComponent(key), '=',
+	            options.raw ? value : encodeURIComponent(value),
+	            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+	            options.path ? '; path=' + options.path : '',
+	            options.domain ? '; domain=' + options.domain : '',
+	            options.secure ? '; secure' : ''
+	        ].join(''));
+	    }
+
+	    // key and possibly options given, get cookie...
+	    options = value || {};
+	    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+	    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+	};
+</script>
 
 <script type="text/javascript" charset="utf-8">
 	$(function() {
 		
+		var userId;
+		
 		$(".choosebtn").click(function() {
 			var id = $(this).attr("name");
+			
+			userId = id.substr(4,1);
 			
 			// register to server
 			$.getJSON('connect/'+id, function(data) {
@@ -47,53 +95,240 @@
 		
 		function showCard(id)
 		{
-			$(id).position().left = "0px";
-			$(id).position().top = "0px";
+			$(id).show();
 		}
 		function hideCard(id)
 		{
-			$(id).position().left = "-1000px";
-			$(id).position().top = "-1000px";
-			
+			$(id).hide();
 		}
 		
 		
-		//
+		////////////////////////////////////////////////////////////////////////////////////
 		// Controlling Posting
 		//
+		
+		
+		if( "<%= platform.is.iOS %>" === "true" )
+		{
+			// safari ios 4.2+ only -_-|||||
+			var oldAccX,oldAccY,oldAccZ;
+
+			var t = null;
+			window.ondevicemotion = function(e) {
+
+				try{
+					var acc = e.accelerationIncludingGravity;
+
+					var dx = acc.x - oldAccX;
+					var dy = acc.y - oldAccY;
+					var dz = acc.z - oldAccZ;
+					oldAccX = acc.x;
+					oldAccY = acc.y;
+					oldAccZ = acc.z;
+
+					var abs = Math.abs;
+					var shark = abs(dx) > 15 || abs(dy) > 15 || abs(dz) > 15;
+					if(shark){
+						post("attack");
+					}
+				}catch(ex){
+					log( ex.message );
+				}
+
+			}
+		}
+
+		// common movement and click attack
+		var oldx, oldy, posx, posy, oldpx, oldpy, isPress, hold;
+		var oldvx, oldvy, timer, count;
+		var currx, curry, pressx, pressy;
+		var isMulTouch;
+
+		var sid = setInterval(function() {
+			
+			// if(isMulTouch) post("attack");
+
+			if(!isPress) return;
+
+			if( oldx == currx && oldy == curry )
+			{
+				if( ++hold == 3 )
+				{
+					console.log("stop");
+					
+					posx = currx;
+					posy = curry;
+					var vx = posx - oldpx;
+					var vy = posy - oldpy;
+					oldpx = posx;
+					oldpy = posy;
+
+					post("move", {vx:vx, vy:vy} );
+				}
+			}
+			else
+			{
+				hold = 0;
+
+				var newTimer = new Date().getTime();
+				var dt = newTimer - timer;
+				var dx = currx - oldx;
+				var dy = curry - oldy;
+				var ds = dx*dx + dy*dy;
+				oldvx = dx;
+				oldvy = dy;
+				timer = newTimer;
+
+				// test scratch attack
+				var validInterval = dt < 100;
+				var validScratch = Math.abs(dx) > 10 || Math.abs(dy) > 10;
+				if( validScratch && validInterval ) ++count;
+				else count = 0;
+
+
+				if( count > 5 )
+				{
+					console.log("scratch");
+					count = 0;
+					post("attack");
+				}
+				// end scratch attack
+			}
+
+			oldx = currx;
+			oldy = curry;
+		}, 50);
+
+		function ontouchstart (e) {
+			try{
+				isPress = true;
+			
+				isMulTouch = getMulTouch(e);
+				
+				// var t="";
+				// for(var i in e.originalEvent.touches[0]) if(typeof(e.originalEvent.touches[0])!=="function") t+=i+":"+e.originalEvent.touches[0][i]+"\n";
+				// logger(t);
+			
+				oldx = posx = currx = pressx = oldpx = getPageX(e);
+				oldy = posy = curry = pressy = oldpy = getPageY(e);
+				oldvx = oldvy = -1;
+				timer = new Date().getTime();
+				count  = 0;
+				hold = 0;
+				
+				e.originalEvent.preventDefault();
+			}catch(ex){
+				logger(ex.message);
+			}
+
+		}
+
+		function ontouchmove (e) {
+			try{
+				
+				currx = getPageX(e);
+				curry = getPageY(e);
+				
+				e.originalEvent.preventDefault();
+			}catch(ex){
+				logger(ex.message);				
+			}
+		}
+
+		function ontouchend (e) {
+			try{
+
+				isPress = false;
+				isMulTouch = false;
+
+				// test click attack
+				if( pressx == currx && pressy == curry )
+				{
+					post("attack");
+				}
+			
+				e.originalEvent.preventDefault();
+				
+			}catch(ex){
+				logger(ex.message);
+			}
+		}
+		
+		if( "<%= platform.is.iOS %>" === "true" )
+		{
+			$("#area").bind("touchstart", ontouchstart);
+			$("#area").bind("touchmove", ontouchmove);
+			$("#area").bind("touchend", ontouchend);
+		}
+		else
+		{
+			$("#area").bind("mousedown", ontouchstart);
+			$("#area").bind("mousemove", ontouchmove);
+			$("#area").bind("mouseup", ontouchend);
+		}
+		
+		function getPageX (e) {
+			if( "<%= platform.is.iOS %>" === "true" )
+				return e.originalEvent.touches[0].pageX;
+			else
+				return e.originalEvent.pageX;
+			// body...
+		}
+		function getPageY (e) {
+			if( "<%= platform.is.iOS %>" === "true" )
+				return e.originalEvent.touches[0].pageY;
+			else
+				return e.originalEvent.pageY;
+			// body...
+		}
+		function getMulTouch (e) {
+			if( "<%= platform.is.iOS %>" === "true" )
+				return e.originalEvent.touches && e.originalEvent.touches.length > 1;
+			else
+				return false;
+			// body...
+		}
+		
 		var lastPostTime = getTimer();
 		var postInterval = 300; // unit ms
 		
-		var controller = require("./controller");
-		controller.start( $("#area"), function(type, data){
-			// Here is control callback //
+		function post ( type, data) {
+			
+			console.log(type,data);
 			
 			// client render code
 			
 			// limit posting times
-			var newTimer = getTimer();
-			if( newTimer - lastPostTime < postInterval ) return;
-			lastPostTime = newTimer;
+			// var newTimer = getTimer();
+			// if( newTimer - lastPostTime < postInterval ) return;
+			// lastPostTime = newTimer;
 			
-			// post control type and some data
+			// send data to socketio
 			$.post("/eagleapi/room/rand",{
-				type: "someone update",
+				type: 'game control',
 				gamedata: { 
-
-					type: type,
-					data: data || {}
+					user: { id: $.cookie('connect.sid') }, 
+					msg: { type:type, data: data || {} }
 				},
 				sessionKey: $.cookie('connect.sid')
 			});
-		});
+		}
+		
+		function logger(msg){
+			$.post("/eagleapi/room/rand",{
+				type: 'logger',
+				gamedata: { 
+					user: { id: $.cookie('connect.sid') }, 
+					msg: msg
+				},
+				sessionKey: $.cookie('connect.sid')
+			});
+		}
+		
+		function getTimer()
+		{
+			return new Date().getTime();
+		}
 	});
-	
-	
-	function getTimer()
-	{
-		return new Date().getTime();
-	}
-	
-	
 	
 </script>
