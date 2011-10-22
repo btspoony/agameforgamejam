@@ -333,6 +333,8 @@ Crafty.c('HeroControll',{
 
 Crafty.c('HeroRemoteController',{
 	init: function () {
+		this._movement = {x:0, y:0};
+		
 		this.bind("EnterFrame",function() {
 			// if (this.disableControls) return;
 	
@@ -348,16 +350,20 @@ Crafty.c('HeroRemoteController',{
 	},
 	move: function( data ){
 		
-		this.trigger('NewDirection', this._movement);
+		gamelog([data.vx, data.vy].join(","));
 		
 		this._movement.x = data.vx;
 		this._movement.y = data.vy;
+		this._movement.x *= 2.5;
+		this._movement.y *= 2.5;
+		
+		this.trigger('NewDirection', this._movement);
 		
 		return this;
 	},
         
 	attack: function(){
-		
+		this.shoot();
 	},
 });
 
@@ -565,10 +571,10 @@ $(function(){
 					for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					gamelog("hero="+(hero-1));
 					if(hero === -1) return;
-					var entity = heroEntities[ "hero" + (hero-1) ];
+					var entity = heroEntities[ hero-1 ];
 					gamelog(entity);
 					gamelog(data.msg.type);
-					entity[ data.msg.type ].apply(entity, [data.msg]);
+					entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				}catch(ex){
 					gamelog(ex.message);
 				}

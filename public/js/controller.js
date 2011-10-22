@@ -57,7 +57,7 @@ $(function() {
 				oldAccZ = acc.z;
 
 				var abs = Math.abs;
-				var shark = abs(dx) > 20 || abs(dy) > 20 || abs(dz) > 20;
+				var shark = abs(dx) > 10 || abs(dy) > 10 || abs(dz) > 10;
 				if(shark){
 					post("attack");
 				}
@@ -73,11 +73,12 @@ $(function() {
 	var oldvx, oldvy, timer, count;
 	var currx, curry, pressx, pressy;
 	// var isMulTouch;
+	oldvx = oldvy = 0;
 
 	var sid = setInterval(function() {
 		
 		// if(isMulTouch) post("attack");
-		if(!isPress) return;
+		if(!isPress){ post("move", {vx:0, vy:0}); return; }
 
 		if( oldx == currx && oldy == curry )
 		{
@@ -90,11 +91,11 @@ $(function() {
 				var vx = posx - oldpx;
 				var vy = posy - oldpy;
 				var len = Math.sqrt(vx*vx + vy*vy);
-				vx = vx / len;
-				vy = vy / len;
+				if(len>0) vx = vx / len;
+				if(len>0) vy = vy / len;
 				oldpx = posx;
 				oldpy = posy;
-
+				
 				post("move", {vx:vx, vy:vy} );
 			}
 		}
@@ -179,7 +180,7 @@ $(function() {
 			{
 				post("attack");
 			}
-		
+			
 			e.originalEvent.preventDefault();
 			
 		}catch(ex){
@@ -220,11 +221,9 @@ $(function() {
 	}
 	
 	var lastPostTime = getTimer();
-	var postInterval = 300; // unit ms
+	var postInterval = 100; // unit ms
 	
 	function post ( type, data) {
-		
-		console.log(type,data);
 		
 		// client render code
 		
@@ -232,6 +231,15 @@ $(function() {
 		var newTimer = getTimer();
 		if( newTimer - lastPostTime < postInterval ) return;
 		lastPostTime = newTimer;
+		
+		if( type == "move" )
+		{
+			if(oldvx == data.vx && oldvy == data.vy ) return;
+			oldvx = data.vx;
+			oldvy = data.vy;
+		}
+		
+		console.log(type,data);
 		
 		// send data to socketio
 		var session = localStorage.getItem("session");
