@@ -34,7 +34,7 @@ app.configure(function(){
 	
 	app.use(require('browserify')({
 	    mount : '/browserify.js',
-	    require : app.path + '/client/main',
+	    require : [app.path + '/client/main', app.path + '/client/controller'],
 	}));
 	
 	// using effcient favicon

@@ -48,6 +48,17 @@
 			output.append('Server Error '+msg+'<br/>');
 		});
 	});
+	
+	
+	function updateLevelNum (num) {
+		$('#levelnum').value(num);
+	}
+	function updateMonsterNum (num) {
+		$('#monsternum').value(num);
+	}
+	function updateUserHP (user, hp) {
+		$('#userHP'+user.id).value(hp);
+	}
 </script>
 
 <div id="hero_selector">
@@ -68,6 +79,24 @@
 	</ul>
 	<div id="start_btn">START</div>
 </div>
+
+<div id="ui">
+	<% for(var user in userlist){ %>
+		<div id="userAvatar"+"<%= user.id %>">
+			
+		</div>
+		<div id="userHP"+"<%= user.id %>">
+			
+		</div>
+	<% } %>
+	<div id="levelnum">
+		
+	</div>
+	<div id="monsternum">
+		
+	</div>
+</div>
+
 <div id="output"> Output: <br/></div>
 
 <canvas id="gamecanvas" class='hidden'></canvas>

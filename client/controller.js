@@ -120,7 +120,7 @@ exports.start = function( area, ctrlCallback, ios ) {
 	area.onmousemove = ontouchmove;
 	area.onmouseup = ontouchend;
 	
-	area.addEventListener("touchstart", ontouchstart, false);
-	area.addEventListener("touchmove", ontouchmove, false);
-	area.addEventListener("touchend", ontouchend, false);
+	// area.addEventListener("touchstart", ontouchstart, false);
+	// area.addEventListener("touchmove", ontouchmove, false);
+	// area.addEventListener("touchend", ontouchend, false);
 };
