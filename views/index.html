@@ -22,7 +22,7 @@
 				if(herocontroller.indexOf(session) < 0){
 					can_start = true;
 					herocontroller[hero] = session;
-					$('#hero'+hero).removeClass('negative').addClass('positive');
+					$('#hero'+hero).addClass('hero'+hero+'_on');
 					output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
 				}
 			}).on('game control', function (data) {
@@ -66,28 +66,38 @@
 
 <style type="text/css">
 	#hero_selector{
-		background: url('images/index_bg_ref.jpg') no-repeat;
+		background: url('images/index_bg.jpg') no-repeat;
 		width:960px;
 		height:640px;
 	}
 	.btn{
 		border:none;
 	}
-	.start_btn{
+	#start_btn{
 		background: url('images/index_start1.png') no-repeat;
 		position:absolute;
-		width
-		top: 500px;
-		left:500px;
+		width: 174px;
+		height: 77px;
+		top: 503px;
+		left:410px;
 	}
-	.gun{
+	.hero1{
 		background: url('images/index_gun1.png') no-repeat;
 	}
-	.knife{
+	.hero2{
 		background: url('images/index_knife1.png') no-repeat;
 	}
-	.ask{
+	.hero3, .hero4{
 		background: url('images/index_ask1.png') no-repeat;
+	}
+	.hero1_on{
+		background: url('images/index_gun2.png') no-repeat;
+	}
+	.hero2_on{
+		background: url('images/index_knife2.png') no-repeat;
+	}
+	.hero3_on, .hero4_on{
+		background: url('images/index_ask2.png') no-repeat;
 	}
 	#hero_selector ul{
 		list-style-type: none;
@@ -108,10 +118,10 @@
 <div id="hero_selector">
 	<div id="title"></div>
 	<ul class="buttons">
-		<li class="btn gun" id="hero1"></li>
-		<li class="btn knife" id="hero2"></li>
-		<li class="btn ask" id="hero3"></li>
-		<li class="btn ask" id="hero4"></li>
+		<li class="btn hero1" id="hero1"></li>
+		<li class="btn hero2" id="hero2"></li>
+		<li class="btn hero3" id="hero3"></li>
+		<li class="btn hero4" id="hero4"></li>
 	</ul>
 	<div id="start_btn"></div>
 </div>
