@@ -134,11 +134,11 @@ Crafty.c("MonsterControl",{
 				 	randPos = randInArray(staticInfo.monsterSpawnPoint),
 					name, rndX, rndY;
 				while(total.length>0 && spawnLeft>0 ){
-					gamelog("New Monster!");
-					rndX = randInt(10)-5;
-					rndY = randInt(10)-5;
+					rndX = randInt(50)-25;
+					rndY = randInt(50)-25;
+					
 					name = this._monsTotal.shift();
-					Crafty.e(name).spawn(randPos[0]+rndX, randPos[1]+rndY);
+					Crafty.e(name).spawn(randPos[0]+rndX, randPos[1]+rndY, Math.random()*0.6-0.3);
 					spawnLeft--;
 				}
 			}
@@ -163,37 +163,46 @@ Crafty.c('Monster', {
 		this.requires("2D, Canvas, Collision, SpriteAnimation");
 		this.visible = false;
 	},
-	spawn: function (x, y) {
+	spawn: function (x, y, s) {
 		this.x = x;
 		this.y = y;
+		this.attr('speed', this.attr('speed')+s);
 		this._movement = {x:0, y:0};
 		this.visible = true;
 		
 		// Die check
 		this.bind('EnterFrame', function () {
-			this._moveToTarget();
+			if(this._status == "move" ){				
+				this._moveToTarget();
 
-			var hittest = this.hit("Hero");
-			if(!hittest){
-				this.x += this._movement.x;
-				this.y += this._movement.y;
-			}else{
-				hittest.forEach(function(ele){
-					ele.obj.beHitted(this.attr("atk"));
-				}, this);
-			}
-			
-			if(this.attr('hp') <= 0){
-				this.playDie();
+				var hittest = this.hit("Hero");
+				if(!hittest){
+					this.x += this._movement.x;
+					this.y += this._movement.y;
+				}else{
+					hittest.forEach(function(ele){
+						ele.obj.beHitted(this.attr("atk"));
+					}, this);
+				}
+				
+				if(this.attr('hp') <= 0){
+					this.playDie();
+				}	
 			}
 		});
 		
 		//collision
 		this.collision().onHit("Weapon", function (data) {
 			// Be check HP
+			var weapon, hp;
 			data.forEach(function(ele){
-				ele.obj.destroy();
+				gamelog('Weapon');
+				var weapon = ele.obj;
+				var hp = this.attr('hp');
+				this.attr('hp', hp - weapon.attr("demage"));
+				weapon.destroy();
 			}, this);
+			
 		});
 		
 		this.playMove();
@@ -209,9 +218,8 @@ Crafty.c('Monster', {
 			}
 		},this);
 		var angle = Math.atan2(this._target.y-this.y, this._target.x-this.x);
-		var rand = (randInt(3)-1.5)*Math.random();
-		this._movement.x = Math.round(Math.cos(angle) * 1000 * (this.attr('speed') + rand) )/1000;
-		this._movement.y = Math.round(Math.sin(angle) * 1000 * (this.attr('speed') + rand) )/1000;
+		this._movement.x = Math.round(Math.cos(angle) * 1000 * this.attr('speed') )/1000;
+		this._movement.y = Math.round(Math.sin(angle) * 1000 * this.attr('speed') )/1000;
 		
 		return this;
 	},
@@ -235,7 +243,7 @@ Crafty.c('Monster', {
 			
 			this.delay(function(){
 				this.destroy();
-			}, 1000);
+			}, 100);
 			
 		}
 		return this;
@@ -248,9 +256,9 @@ Crafty.c('MonsterA', {
 		this.color("blue").attr({w:10,h:10});
 		
 		// monster hp
-		this.attr('hp', 100);
-		this.attr('speed', 0.5);
-		this.attr('atk', 5);
+		this.attr('hp', 1);
+		this.attr('speed', 1.5);
+		this.attr('atk', 2);
 	},
 });
 Crafty.c('MonsterB', {
@@ -259,9 +267,9 @@ Crafty.c('MonsterB', {
 		this.color("green").attr({w:10,h:10});
 		
 		// monster hp
-		this.attr('hp', 200);
-		this.attr('speed', 0.1);
-		this.attr('atk', 15);
+		this.attr('hp', 2);
+		this.attr('speed', 1);
+		this.attr('atk', 4);
 	},
 });
 Crafty.c('MonsterC', {
@@ -270,9 +278,9 @@ Crafty.c('MonsterC', {
 		this.color("pink").attr({w:10,h:10});
 		
 		// monster hp
-		this.attr('hp', 500);
-		this.attr('speed', 0.05);
-		this.attr('atk', 30);
+		this.attr('hp', 5);
+		this.attr('speed', 0.5);
+		this.attr('atk', 10);
 	},
 });
 
@@ -281,7 +289,7 @@ Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
 		// this.requires("2D, Canvas, Persist, HeroRemoteController");
-		this.requires("2D, Canvas, Persist, HeroRemoteController");
+		this.requires("2D, Canvas, Persist, HeroControll");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -424,6 +432,7 @@ Crafty.c("SkillFX",{
 
 Crafty.c("Weapon", {
 	init: function () {
+		this.attr("demage", 1);
 	}
 });
 
