@@ -1,11 +1,9 @@
-<% if (typeof authorize === 'undefined') { /* Main Page should be displayed when no authorize*/  %>
-<div id="swfContent"></div>
-<% }else if( authorize == 'iframe') { %>
-<div id="welcome" platform="<%- platform %>"></div>
-<% }else { %>
-<ul id="Connections">
-	<li>
-		<a href='javascript:;' onclick='auth_login("sina");return false;' class="icon sina_login"></a>
-	</li>
-</ul>
-<% } %>
+<script type="text/javascript" src="js/libs/crafty.js" ></script>
+<script defer src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="/browserify.js"></script>
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		//TODO
+	});
+</script>
+<canvas id="game"> </canvas>
