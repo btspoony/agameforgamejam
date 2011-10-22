@@ -108,7 +108,8 @@ app.get('/', function main (req, res, next) {
 	
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
 	
-	if( ua.platform.is.Phone )
+	// if( ua.platform.is.Phone )
+	if( ua.browser.safari )
 		res.render("mobile", { mobileType: ua.platform.name, platform: ua.platform });
 	else
 		res.render("index");
@@ -118,7 +119,7 @@ app.get('/', function main (req, res, next) {
 app.get('/connect/:id', function (req, res, next) {
 	var roomid = eagle.rooms[0];
 	
-	var type = "connect";
+	var type = "heroconnect";
 	var data = { hero: req.params.id, session: md5(req.sessionID) };
 	
 	eagle.roomNotify(null, roomid, type, data);

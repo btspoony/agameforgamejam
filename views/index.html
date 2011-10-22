@@ -5,7 +5,7 @@
 		console.log('Page Loaded');
 		var output = $("#output");
 	
-		var sio = window.sio = io.connect('<%= serverURL %>');
+		var sio = window.sio = io.connect();
 		sio.on('connect', function () {
 			output.append('Server Connected ! <br/>');
 
@@ -13,9 +13,12 @@
 				output.append('Room ID: '+ roomid +'<br/>');
 			});
 			
-			sio.on('connect', function (data) { // controller connect
-				
+			sio.on('heroconnect', function (data) { // controller connect
+				var hero = data.hero;
+				var session = data.session;
+				output.append(hero + ' connected ! session is "'+session+'" <br/>');
 			}).on('game start', function () {
+				//TODO
 			}).on('disconnect', function (msg) {
 				output.append('Server Disconnected! <br/>');
 			});
