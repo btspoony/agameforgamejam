@@ -104,6 +104,11 @@ app.get('/', function main (req, res, next) {
 		res.render("mobile", { mobileType: ua.platform.name, platform: ua.platform });
 	else
 		res.render("index");
+});
+
+// ======= Restful ========
+app.get('/connect/:id', function (req, res, next) {
+	res.json({ data:"OK"}, 200);
 })
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

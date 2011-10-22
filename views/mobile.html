@@ -1,9 +1,33 @@
-<%
-if(mobileType === ""){
-	
-}
-%>
-
-// mobile login > (choose room) > choose player > wait for playing > playing
-
-
+<div id="mobilemain">
+	<div id="title"></div>
+	<div class="buttons">
+		<button class="choosebtn positive" name="hero1">
+			HERO1
+		</button>
+		<button class="choosebtn positive" name="hero1">
+			HERO2
+		</button>
+		<button class="choosebtn positive" name="hero1">
+			HERO3
+		</button>
+		<button class="choosebtn positive" name="hero1">
+			HERO4
+		</button>
+	</div>
+	<div id="ready"></div>
+</div>
+<script type="text/javascript" charset="utf-8">
+	$(function() {
+		$(".choosebtn").click(function() {
+			var id = $(this).attr("name");
+			
+			// register to server
+			$.getJSON('connect/'+id, function(data) {
+				if(data.error)
+					console.log(data);
+				else
+					console.log('OK!');
+			});
+		});
+	})
+</script>
