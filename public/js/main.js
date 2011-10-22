@@ -173,16 +173,16 @@ Crafty.c('Monster', {
 		this.bind('EnterFrame', function () {
 			this._moveToTarget();
 
-			hittest = this.hit("Hero");
-			if(hittest.length == 0){
-				this.x += dx;
-				this.y += dy;
+			var hittest = this.hit("Hero");
+			if(!hittest){
+				this.x += this._movement.x;
+				this.y += this._movement.y;
 			}else{
 				hittest.forEach(function(ele){
 					ele.obj.forEach(function (entity) {
 						entity.beHitted(this.attr("atk"));
-					})
-				});
+					}, this);
+				}, this);
 			}
 			
 			if(this.attr('hp') <= 0){
@@ -191,13 +191,13 @@ Crafty.c('Monster', {
 		});
 		
 		//collision
-		this.collision().onHit("Ammo", function (data) {
+		this.collision().onHit("Weapon", function (data) {
 			// Be check HP
 			data.forEach(function(ele){
 				ele.obj.forEach(function (entity) {
 					entity.destroy();
-				})
-			});
+				});
+			}, this);
 		});
 		
 		this.playMove();
@@ -211,10 +211,11 @@ Crafty.c('Monster', {
 				mindist = dist;
 				this._target = entity;
 			}
-		});
+		},this);
 		var angle = Math.atan2(this._target.y-this.y, this._target.x-this.x);
-		this._movement.x = Math.round(Math.cos(angle) * 1000 * this.attr('speed'))/1000;
-		this._movement.y = Math.round(Math.sin(angle) * 1000 * this.attr('speed'))/1000;
+		var rand = (randInt(3)-1.5)*Math.random();
+		this._movement.x = Math.round(Math.cos(angle) * 1000 * (this.attr('speed') + rand) )/1000;
+		this._movement.y = Math.round(Math.sin(angle) * 1000 * (this.attr('speed') + rand) )/1000;
 		
 		return this;
 	},
@@ -252,7 +253,7 @@ Crafty.c('MonsterA', {
 		
 		// monster hp
 		this.attr('hp', 100);
-		this.attr('speed', 20);
+		this.attr('speed', 3);
 		this.attr('atk', 5);
 	},
 });
@@ -263,7 +264,7 @@ Crafty.c('MonsterB', {
 		
 		// monster hp
 		this.attr('hp', 200);
-		this.attr('speed', 10);
+		this.attr('speed', 2);
 		this.attr('atk', 15);
 	},
 });
@@ -274,7 +275,7 @@ Crafty.c('MonsterC', {
 		
 		// monster hp
 		this.attr('hp', 500);
-		this.attr('speed', 5);
+		this.attr('speed', 1);
 		this.attr('atk', 30);
 	},
 });
@@ -302,6 +303,7 @@ Crafty.c('Hero', {
 	beHitted: function ( atk ) {
 		var hpnow = this.attr('hp');
 		this.attr('hp', hpnow - atk);
+		gamelog('be hitted '+ atk+" Now "+ this.attr('hp'));
 		this.playHitted();
 	},
 	playMove: function () {
@@ -424,10 +426,15 @@ Crafty.c("SkillFX",{
 	}
 });
 
+Crafty.c("Weapon", {
+	init: function () {
+	}
+});
+
 Crafty.c("Ammo",{
 	_speed: 5,
 	init: function () {
-		this.requires("2D, Canvas, Color");
+		this.requires("2D, Canvas, Weapon, Color");
 		setEntityInfo(this, staticInfo.ammo);
 		this.color("white");
 	},
@@ -446,9 +453,6 @@ Crafty.c("Ammo",{
 		});
 		
 		return this;
-	},
-	_hittest: function () {
-		return this;
 	}
 });
 
@@ -456,7 +460,7 @@ var currentLevel;
 var heroEntities = [];
 
 var gameStarted = false;
-var can_start = true;
+var can_start = false;
 var herocontroller = [0,0,0,0];
 
 function gameinit( heroes ) {
