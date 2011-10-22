@@ -10,12 +10,14 @@ exports.start = function ( out, heroes ) {
 	output = out; // init game out
 	
 	gamelog("GameStart!");
+	
+	gameinit(heroes);
 };
 
 /**
  * Utils Function
  */
-var setEntityInfo = function(entity,data) {
+function setEntityInfo (entity,data) {
 	var key;
 	for(key in data){
 		if(!data.hasOwnProperty(key)) continue;
@@ -23,12 +25,20 @@ var setEntityInfo = function(entity,data) {
 		if(typeof entity[key]) !== 'undefined')
 			entity[key] = data[key];
 	}
+};
+
+function randInt ( int ) {
+	return Math.floor(Math.random() * int);
 }
 
-var baseInfo = {
-	STAGEWIDTH : 960,
-	STAGEHEIGHT : 640
-};
+
+function randInArray (arr) {
+	var rand = Math.floor(Math.random() * arr.length);
+	return arr[rand];
+}
+
+var STAGEWIDTH = 960,
+	STAGEHEIGHT = 640;
 
 var staticInfo = {
 	monster:{
@@ -41,35 +51,99 @@ var staticInfo = {
 		w: 10,
 		h: 10,
 	},
+	heroInitPos:{
+		x: 480,
+		y: 360,
+	},
+	monsterSpawnPoint:[
+		[ 0,0 ],
+		[ 960,0 ],
+		[ 960,640 ],
+		[ 0,640 ],
+	],
+};
+
+var testData = {
+	maxMons : 50,
+	spawnSpeed : 10,
+	monsTotal : {
+		"A" : 10,
+		"B" : 20,
+		"C" : 5,
+	},
 };
 
 // Component Defination
 // == Global Component ==
-Crafty.c("MonsterGene",{
-	// Static Member
-	GAME_STATUS : ["started","win"],
-	
+Crafty.c('LevelData', {
+	init: function() {
+		//todo
+	},
+	initLevel: function(data) {
+		// change object to array
+		var monsTotal = data.monsTotal,
+			monsArr = [], k, i, len;
+		for(k in monsTotal){
+			len = monsTotal[k];
+			for(i=0;i<len;i++){
+				monsArr.push(k);
+			}
+		}
+		data.monsTotal = monsArr;
+		
+		this.attr('levelData', data);
+		return this;
+	}
+});
+
+Crafty.c("MonsterControl",{
+	_monsTotal: [],
+	_spawnSpeed: 10,
+	_lastSpawnFrame: 0,
+	_lastFrame:0,
 	/**
 	 * Initialization
 	 */
-	init: function() {
-		// Game Param
-		this.attr('gameStatus',this.GAME_STATUS[0]);
-		this.attr('MonsLeft', 50);
-		this.attr('MonsTotal', 50);
-		
+	init: function() {		
 		// Global Status Check
 		this.bind("Change",function(){
 			var won = this._iswin();
 			if(won){
 				//TODO goto win stage
+				nextLevel();
 			}
 		});
 	},
-	/**
-	 * Function Setup Game
-	 * @return {String} Return value description
-	 */
+	reset: function () { // Game Reset
+		var data = this.attr('levelData');
+		this.attr('MonsLeft', data.maxMons);
+		this._monsTotal = data.monsTotal;
+		this._spawnSpeed = data.spawnSpeed;
+		return this;
+	},
+	start: function () { // Game Start
+		this._lastSpawnFrame = this.frame;
+		this._lastFrame = this.frame + 1;
+		this.bind('EnterFrame', function () {
+			var frame = this.frame;
+			if((frame - this._lastSpawnFrame) % this._spawnSpeed == 0){
+				this._lastSpawnFrame = frame;
+				
+				// Create new Monster
+				var spawnLeft = randInt(4)+1,
+					total = this._monsTotal,
+				 	randPos = randInArray(staticInfo.monsterSpawnPoint),
+					name;
+				while(total.length>0 && spawnLeft>0 ){
+					name = this._monsTotal.shift();
+					Crafty.e(name).spawn(randPos[0], randPos[1]);
+					spawnLeft--;
+				}
+			}
+			this._lastframe = frame;
+		});
+		return this;
+	},
 	_iswin: function() {
 		var left = this.attr('MonsLeft');
 		if(left == 0){
@@ -77,19 +151,43 @@ Crafty.c("MonsterGene",{
 		}else{
 			return false;
 		}
+		return this;
 	},
 });
 
 // Monster
 Crafty.c('Monster', {
+	_status: "",
 	init: function () {
 		this.requires("2D, Canvas, Collision, SpriteAnimation");
+		this.visible = false;
+	},
+	spawn: function (x, y) {
+		this.x = x;
+		this.y = y;
+		this.visible = true;
+		
+		// Die check
+		this.bind('EnterFrame', function () {
+			this._moveToTarget();
+			if(this.attr('hp') <= 0){
+				this.playDie();
+			}
+		});
+		
 		//collision
 		this.collision().onHit("Ammo", function () {
 			// Be check HP
 		});
+		
+		this.playMove();
+		return this;
 	},
+	_moveToTarget: function () {
+		return this;
+	}
 	playMove: function () {
+		this._status = "move";
 		// if(!this.isPlaying()){
 		// 	var self = this;
 		// 	this.delay(function () {
@@ -102,14 +200,29 @@ Crafty.c('Monster', {
 		return this;
 	},
 	playDie: function () {
+		if(this._status != "die"){
+			this._status = "die";
+			//TODO Play Anim
+			
+			this.delay(function(){
+				this.destroy();
+			}, 1000);
+			
+		}
 		return this;
 	},
 });
 
-// Hero
+// Hero - Persist Entity
 Crafty.c('Hero', {
 	init: function () {
-		this.requires("2D, Canvas, SpriteAnimation");
+		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
+		this.requires("2D, Canvas, Image, Persist, HeroControll");
+	},
+	reset: function() {
+		setEntityInfo(this, staticInfo.heroInitPos);
+		this.attr('hp', 100);
+		return this;
 	},
 	playMove: function () {
 		return this;
@@ -125,6 +238,33 @@ Crafty.c('Hero', {
 	},
 });
 
+Crafty.c('hero1', {
+	_lastShootTime: 0,
+	init: function () {
+		this.requires("Hero");
+		this.image("images/hero1.png");
+		this.attr("skillInterval", 10);
+		return this;
+	},
+	shoot: function () {
+		var interval = this.attr("skillInterval");
+		if(this.frame - this._lastShootTime > interval){
+			this._lastShootTime = this.frame;
+			// Spawn new Ammo
+			Cracy.e("Ammo").from(this);
+		}
+		return this;
+	},
+});
+
+Crafty.c('HeroControll',{
+	init: function () {
+		this.requires("Fourway");
+		this.fourway(10);
+	},
+});
+
+
 // ======= FX Component ========
 Crafty.c("SkillFX",{
 	init: function() {
@@ -132,7 +272,6 @@ Crafty.c("SkillFX",{
 		this.color("red");
 		this.visible = false;
 	},
-	
 	/**
 	 * play the FX
 	 * @return {Object} the entity
@@ -147,22 +286,46 @@ Crafty.c("SkillFX",{
 });
 
 Crafty.c("Ammo",{
+	_speed: 10,
 	init: function () {
 		this.requires("2D, Canvas, Color");
 		setEntityInfo(this, staticInfo.ammo);
 		this.color("green");
 	},
-	shoot: function (dx, dy) {
+	from: function (hero) {
+		this.x = hero.x;
+		this.y = hero.y;
+		this.rotation = hero.rotation;
+		var dx = this._speed * Math.cos(this.rotation);
+		var dy = this._speed * Math.sin(this.rotation);
 		
+		this.bind("EnterFrame", function ) {
+			this.x += dx;
+			this.y += dy;
+			if(this.x< 0 || this.y <0 || this.x > STAGEWIDTH || this.y > STAGEHEIGHT){
+				this.delay(function(){
+					this.destroy();
+				}, 500);
+			}
+		});
+		
+		return this;
 	},
 	_hittest: function () {
-		
+		return this;
 	}
 });
 
-var gameinit = function () {
-	// Crafty.background("url('"+imgPath+"bg_main.png') repeat-y"); // Set Game Background
+var currentLevel;
+var heroEntities = [];
+
+var gameinit = function ( heroes ) {
+	currentLevel = 1;
 	
+	Crafty.scene("Level1",function () {
+		// special for Level 1
+	});
+
 	Crafty.load(["images/hero1.png",
 	 			"images/hero2.png",
 				"images/hero3.png",
@@ -170,7 +333,24 @@ var gameinit = function () {
 				"images/monster1.png" ], 
 	    function() {
 	        //when loaded
-	        Crafty.scene("Level1"); //go to main scene
+			Crafty.init(STAGEWIDTH,STAGEHEIGHT);
+
+			// Crafty.background("url('"+imgPath+"bg_main.png') repeat-y"); // Set Game Background
+
+			// Load Game Sprite Sprites
+			// Crafty.sprite(160,115,'images/monsterAnim.png',{'monsterSprite':[0,0]});
+			
+			// ========== Here create presist entities
+			// Create Heroes
+			for(var k in heroes){
+				heroEntities[k] = Crafty.e(heroes[k]);
+			}
+			
+			// Create Global
+			Crafty.e('LevelData, MonsterControl');
+			
+			// Start a level
+			nextLevel();
 	    },
 
 	    function(e) {
@@ -181,11 +361,25 @@ var gameinit = function () {
 	      //uh oh, error loading
 	    }
 	);
-		
-	// Load Game Sprite Sprites
-	// Crafty.sprite(160,115,'images/monsterAnim.png',{'monsterSprite':[0,0]});
-	
-	Crafty.scene("Level1",function (argument) {
-		//Set Data
-	});
 };
+
+var nextLevel = function nextLevel() {
+	if(currentLevel<10){
+		Crafty.scene("Level"+currentLevel); //go to main scene
+		
+		Crafty("LevelData").each(function(){
+			this.initLevel(testData);// todo using deferent data
+		});
+		
+		// Reset all presist entity
+		Crafty("*").each(function(){
+			this.reset();
+			this.start();
+		});
+		
+		currentLevel++;
+	}else{
+		//TODO End Game
+		Crafty.stop();
+	}
+}
