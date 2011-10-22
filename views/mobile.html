@@ -16,6 +16,11 @@
 	</div>
 	<div id="ready"></div>
 </div>
+
+<div id="controller">
+	<div id="area"></div>
+</div>
+
 <script type="text/javascript" charset="utf-8">
 	$(function() {
 		$(".choosebtn").click(function() {
@@ -29,5 +34,44 @@
 					console.log('OK!');
 			});
 		});
-	})
+		
+		
+		//
+		// Controlling Posting
+		//
+		var lastPostTime = getTimer();
+		var postInterval = 300; // unit ms
+		
+		var controller = require("./controller");
+		controller.start( $("#area"), function(type, data){
+			// Here is control callback //
+			
+			// client render code
+			
+			// limit posting times
+			var newTimer = getTimer();
+			if( newTimer - lastPostTime < postInterval ) return;
+			lastPostTime = newTimer;
+			
+			// post control type and some data
+			$.post("/eagleapi/room/rand",{
+				type: "someone update",
+				gamedata: { 
+					user: { id: "<%= userdata.id %>", imageUrl: "<%= userdata.imageUrl %>" },
+					type: type
+					data: data || {}
+				},
+				sessionKey: $.cookie('connect.sid');
+			});
+		});
+	});
+	
+	
+	function getTimer()
+	{
+		return new Date().getTime();
+	}
+	
+	
+	
 </script>

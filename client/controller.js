@@ -4,7 +4,7 @@ exports.start = function( ctrlCallback, area ) {
 	if( !ctrlCallback ) ctrlCallback = function(type) {};
 
 	function move () {
-		ctrlCallback( "move", vx, vy );
+		ctrlCallback( "move", {vx:vx, vy:vy} );
 	}
 	function attack(){
 		ctrlCallback( "attack" );
