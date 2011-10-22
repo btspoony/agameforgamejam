@@ -179,9 +179,7 @@ Crafty.c('Monster', {
 				this.y += this._movement.y;
 			}else{
 				hittest.forEach(function(ele){
-					ele.obj.forEach(function (entity) {
-						entity.beHitted(this.attr("atk"));
-					}, this);
+					ele.obj.beHitted(this.attr("atk"));
 				}, this);
 			}
 			
@@ -194,9 +192,7 @@ Crafty.c('Monster', {
 		this.collision().onHit("Weapon", function (data) {
 			// Be check HP
 			data.forEach(function(ele){
-				ele.obj.forEach(function (entity) {
-					entity.destroy();
-				});
+				ele.obj.destroy();
 			}, this);
 		});
 		
@@ -253,7 +249,7 @@ Crafty.c('MonsterA', {
 		
 		// monster hp
 		this.attr('hp', 100);
-		this.attr('speed', 3);
+		this.attr('speed', 0.5);
 		this.attr('atk', 5);
 	},
 });
@@ -264,7 +260,7 @@ Crafty.c('MonsterB', {
 		
 		// monster hp
 		this.attr('hp', 200);
-		this.attr('speed', 2);
+		this.attr('speed', 0.1);
 		this.attr('atk', 15);
 	},
 });
@@ -275,7 +271,7 @@ Crafty.c('MonsterC', {
 		
 		// monster hp
 		this.attr('hp', 500);
-		this.attr('speed', 1);
+		this.attr('speed', 0.05);
 		this.attr('atk', 30);
 	},
 });
@@ -285,7 +281,7 @@ Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
 		// this.requires("2D, Canvas, Persist, HeroRemoteController");
-		this.requires("2D, Canvas, Persist, HeroControll");
+		this.requires("2D, Canvas, Persist, HeroRemoteController");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -573,11 +569,8 @@ $(function(){
 				try{
 					var hero = Number(herocontroller.indexOf( data.user.id ));
 					for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
-					gamelog("hero="+(hero-1));
 					if(hero === -1) return;
 					var entity = heroEntities[ hero-1 ];
-					gamelog(entity);
-					gamelog(data.msg.type);
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				}catch(ex){
 					gamelog(ex.message);

@@ -72,32 +72,32 @@ $(function() {
 	var oldx, oldy, posx, posy, oldpx, oldpy, isPress, hold;
 	var oldvx, oldvy, timer, count;
 	var currx, curry, pressx, pressy;
-	// var isMulTouch;
+	var touches;
 	oldvx = oldvy = 0;
 
 	var sid = setInterval(function() {
 		
 		// if(isMulTouch) post("attack");
-		if(!isPress){ post("move", {vx:0, vy:0}); return; }
+		if(!isPress && touches.length == 0){ post("move", {vx:0, vy:0}); return; }
 
 		if( oldx == currx && oldy == curry )
 		{
-			if( ++hold == 3 )
-			{
-				logger("stop");
-				
-				posx = currx;
-				posy = curry;
-				var vx = posx - oldpx;
-				var vy = posy - oldpy;
-				var len = Math.sqrt(vx*vx + vy*vy);
-				if(len>0) vx = vx / len;
-				if(len>0) vy = vy / len;
-				oldpx = posx;
-				oldpy = posy;
-				
-				post("move", {vx:vx, vy:vy} );
-			}
+			// if( ++hold == 3 )
+			// {
+			// 	logger("stop");
+			// 	
+			// 	posx = currx;
+			// 	posy = curry;
+			// 	var vx = posx - oldpx;
+			// 	var vy = posy - oldpy;
+			// 	var len = Math.sqrt(vx*vx + vy*vy);
+			// 	if(len>0) vx = vx / len;
+			// 	if(len>0) vy = vy / len;
+			// 	oldpx = posx;
+			// 	oldpy = posy;
+			// 	
+			// 	// post("move", {vx:vx, vy:vy} );
+			// }
 		}
 		else
 		{
@@ -126,6 +126,13 @@ $(function() {
 				post("attack");
 			}
 			// end scratch attack
+			
+			var len = Math.sqrt(dx*dx + dy*dy);
+			var vx = dx;
+			var vy = dy;
+			if(len>0) vx /= len;
+			if(len>0) vy /= len;
+			post("move", {vx:vx, vy:vy} );
 		}
 
 		oldx = currx;
@@ -135,7 +142,7 @@ $(function() {
 	function ontouchstart (e) {
 		try{
 			isPress = true;
-			logger(isPress);
+			touches = e.originalEvent.touches;
 		
 			// isMulTouch = getMulTouch(e);
 			
@@ -162,6 +169,7 @@ $(function() {
 			
 			currx = getPageX(e);
 			curry = getPageY(e);
+			touches = e.originalEvent.touches;
 			
 			e.originalEvent.preventDefault();
 		}catch(ex){
@@ -173,7 +181,7 @@ $(function() {
 		try{
 
 			isPress = false;
-			// isMulTouch = false;
+			touches = e.originalEvent.touches;
 
 			// test click attack
 			if( pressx == currx && pressy == curry )
