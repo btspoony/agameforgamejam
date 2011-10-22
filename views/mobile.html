@@ -1,11 +1,9 @@
-<% if (typeof authorize === 'undefined') { /* Main Page should be displayed when no authorize*/  %>
-<div id="swfContent"></div>
-<% }else if( authorize == 'iframe') { %>
-<div id="welcome" platform="<%- platform %>"></div>
-<% }else { %>
-<ul id="Connections">
-	<li>
-		<a href='javascript:;' onclick='auth_login("sina");return false;' class="icon sina_login"></a>
-	</li>
-</ul>
-<% } %>
+<%
+if(mobileType === ""){
+	
+}
+%>
+
+// mobile login > (choose room) > choose player > wait for playing > playing
+
+

@@ -101,7 +101,7 @@ app.get('/', function main (req, res, next) {
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
 	
 	if( ua.platform.is.Phone )
-		res.render("mobile", { mobileType: ua.platform.name });
+		res.render("mobile", { mobileType: ua.platform.name, platform: ua.platform });
 	else
 		res.render("index");
 })
