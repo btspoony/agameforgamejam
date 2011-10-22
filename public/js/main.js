@@ -405,7 +405,7 @@ $(function(){
 			if(herocontroller.indexOf(session) < 0){
 				can_start = true;
 				herocontroller[hero] = session;
-				$('#hero'+hero).removeClass('negative').addClass('positive');
+				$('#hero'+hero).addClass('hero'+hero+'_on');
 				output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
 			}
 		}).on('game control', function (data) {
