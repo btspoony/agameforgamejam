@@ -94,10 +94,11 @@ app.locals({
 
 // ===== router =====
 app.get('/', function main (req, res, next) {
+	
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
 	
 	if( ua.platform.is.Phone )
-		res.render("mobile");
+		res.render("mobile", mobileType: ua.platform.name);
 	else
 		res.render("index");
 })
