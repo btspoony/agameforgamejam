@@ -23,9 +23,9 @@ function randInArray (arr) {
 	return arr[rand];
 }
 
-function distance (entityA, entityB) {
-	var dx = entityA.x - entityB.x,
-		dy = entityA.y - entityB.y;
+function distance (a, b) {
+	var dx = (a.x - a.w/2) - (b.x - b.w/2),
+		dy = (a.y - a.h/2) - (b.y - b.h/2);
 	return Math.sqrt(dx*dx +dy*dy);
 }
 
@@ -219,7 +219,9 @@ Crafty.c('Monster', {
 				this._target = entity;
 			}
 		},this);
-		var angle = Math.atan2(this._target.y-this.y, this._target.x-this.x);
+		var dx = (this._target.x + this._target.w/2) - this.x;
+		var dy = (this._target.y + this._target.h/2) - this.y;
+		var angle = Math.atan2(dy, dx);
 		this._movement.x = Math.round(Math.cos(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		this._movement.y = Math.round(Math.sin(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		
@@ -422,10 +424,12 @@ Crafty.c('hero2', {
 	start: function(){
 		this.origin("center");
 		
-		this._skill = Crafty.e('Knife').placeby(this);
-		this.attach(this._skill);
-		// hit test
-		this._skill.collision();
+		if(!this._skill){
+			this._skill = Crafty.e('Knife').placeby(this);
+			this.attach(this._skill);
+			// hit test
+			this._skill.collision(new Crafty.polygon([0,0],[20,0],[20, 20],[0, 20]));	
+		}
 		return this;
 	},
 	shoot: function () {
@@ -433,7 +437,7 @@ Crafty.c('hero2', {
 		var frame = Crafty.frame();
 		if(frame - this._lastShootTime > interval){
 			this._lastShootTime = frame;
-			
+			this._skill.rotation = this.rotation;
 			this._skill.play();
 		}
 		return this;
@@ -451,8 +455,9 @@ Crafty.c("Weapon", {
 Crafty.c("Knife",{
 	init: function() {
 		this.requires("2D, Canvas, Weapon, Collision, daoguang");
-		
+		this.origin("center");
 		this.visible = false;
+		this.attr("demage", 0.5);
 	},
 	/**
 	 * play the FX
@@ -547,7 +552,7 @@ function gameinit( heroes ) {
 			Crafty.sprite(100,75,'images/avatar1.png',{'avatar1':[0,0]});
 			Crafty.sprite(100,75,'images/avatar2.png',{'avatar2':[0,0]});
 			Crafty.sprite(15,3,'images/bullet.png',{'bullet':[0,0]});
-			Crafty.sprite(26,48,'images/daoguang.png',{'daoguang':[0,0]});
+			Crafty.sprite(100,75,'images/daoguang.png',{'daoguang':[0,0]});
 			Crafty.sprite(75,75,'images/monster.png',{'monsterAnim':[0,0]});
 			
 			// ========== Here create presist entities
