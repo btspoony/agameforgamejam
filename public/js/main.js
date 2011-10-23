@@ -228,7 +228,7 @@ Crafty.c('Monster', {
 		// Set auto rotate
 		this.rotation = angle / Math.PI * 180;
 		
-		if(mindist < 30){
+		if(mindist < 50){
 			this._target.beHitted(this.attr("atk"));
 		}else if(mindist>25){
 			this.x += this._movement.x;
@@ -296,9 +296,7 @@ Crafty.c('MonsterC', {
 //  ======= Hero - Persist Entity ==========
 Crafty.c('Hero', {
 	init: function () {
-		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
-		this.requires("2D, Canvas, Persist, HeroControll");
-		// this.requires("2D, Canvas, Persist, HeroRemoteController");
+		this.requires("2D, Canvas, Persist, HeroRemoteController");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -390,9 +388,6 @@ Crafty.c('HeroRemoteController',{
 		});
 	},
 	move: function( data ){
-		
-		gamelog([data.vx, data.vy].join(","));
-		
 		this._movement.x = data.vx;
 		this._movement.y = data.vy;
 		this._movement.x *= 2.5;
@@ -411,7 +406,7 @@ Crafty.c('HeroRemoteController',{
 Crafty.c('hero1', {
 	_lastShootTime: 0,
 	init: function () {
-		this.requires("Hero, avatar1");
+		this.requires("Hero, avatar1, HeroControll");
 		// attr
 		this.attr("skillInterval", 6);
 		
@@ -658,7 +653,6 @@ function ui_updateMonsterNum (num, total) {
 	$('#monsternum').css("left", 20 + ( 960 - r * 910 ) / 2 );
 }
 function ui_updateUserHP (id, hp) {
-	gamelog([id, hp, 40*hp].join(","));
 	$("#user"+id).css("width", 40 * hp);
 }
 
@@ -698,20 +692,21 @@ $(function(){
 					can_start = true;
 					herocontroller[hero] = session;
 					$('#hero'+hero).addClass('hero'+hero+'_on');
-					output.append('"HERE ' + hero + '" connected ! session is "'+session+'" <br/>');
+					output.append('"HERO ' + hero + '" connected ! session is "'+session+'" <br/>');
 				}				
 			}
 		}).on('game control', function (data) {
 			if(gameStarted){
-				// try{
+				try{
 					var hero = Number(herocontroller.indexOf( data.user.id ));
 					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
 					var entity = heroEntities[ hero-1 ];
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
-				// }catch(ex){
-				// 	gamelog("Exception:"+ex.message);
-				// }
+				}catch(ex){
+					gamelog(data.msg.type);
+					gamelog("Exception:"+ex.message);
+				}
 			}
 		}).on('disconnect', function (msg) {
 			output.append('Server Disconnected! <br/>');
