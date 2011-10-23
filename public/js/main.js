@@ -297,8 +297,8 @@ Crafty.c('MonsterC', {
 Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
-		this.requires("2D, Canvas, Persist, HeroControll");
-		// this.requires("2D, Canvas, Persist, HeroRemoteController");
+		// this.requires("2D, Canvas, Persist, HeroControll");
+		this.requires("2D, Canvas, Persist, HeroRemoteController");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -330,7 +330,7 @@ Crafty.c('Hero', {
 		}, 1000);
 		
 		var hpnow = this.attr('hp') - atk;
-		if(hpnow == 0)
+		if(hpnow <= 0)
 		{
 			this.playDie();
 		}
@@ -390,8 +390,6 @@ Crafty.c('HeroRemoteController',{
 		});
 	},
 	move: function( data ){
-		
-		gamelog([data.vx, data.vy].join(","));
 		
 		this._movement.x = data.vx;
 		this._movement.y = data.vy;
@@ -708,6 +706,7 @@ $(function(){
 					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
 					var entity = heroEntities[ hero-1 ];
+					gamelog([data.msg.type, hero]);
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				// }catch(ex){
 				// 	gamelog("Exception:"+ex.message);
