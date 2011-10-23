@@ -63,12 +63,12 @@ var staticInfo = {
 };
 
 var testData = {
-	maxMons : 50,
-	spawnSpeed : 10,
+	maxMons : 40,
+	spawnSpeed : 20,
 	monsTotal : {
-		"MonsterA" : 30,
-		"MonsterB" : 40,
-		"MonsterC" : 15,
+		"MonsterA" : 15,
+		"MonsterB" : 15,
+		"MonsterC" : 10,
 	},
 };
 
@@ -268,7 +268,7 @@ Crafty.c('MonsterA', {
 		
 		// monster hp
 		this.attr('hp', 1);
-		this.attr('speed', 1.5);
+		this.attr('speed', 1);
 		this.attr('atk', 1);
 	},
 });
@@ -278,7 +278,7 @@ Crafty.c('MonsterB', {
 		
 		// monster hp
 		this.attr('hp', 2);
-		this.attr('speed', 1.2);
+		this.attr('speed', 0.8);
 		this.attr('atk', 1);
 	},
 });
@@ -288,7 +288,7 @@ Crafty.c('MonsterC', {
 		
 		// monster hp
 		this.attr('hp', 5);
-		this.attr('speed', 1);
+		this.attr('speed', 0.5);
 		this.attr('atk', 1);
 	},
 });
