@@ -228,10 +228,10 @@ Crafty.c('Monster', {
 		// Set auto rotate
 		this.rotation = angle / Math.PI * 180;
 		
-		if(mindist>50){
+		if(mindist>25){
 			this.x += this._movement.x;
 			this.y += this._movement.y;
-		}else{
+		}else if(mindist < 100){
 			this._target.beHitted(this.attr("atk"));
 		}
 		
@@ -268,7 +268,7 @@ Crafty.c('MonsterA', {
 		
 		// monster hp
 		this.attr('hp', 1);
-		this.attr('speed', 1);
+		this.attr('speed', 1.5);
 		this.attr('atk', 1);
 	},
 });
@@ -278,7 +278,7 @@ Crafty.c('MonsterB', {
 		
 		// monster hp
 		this.attr('hp', 2);
-		this.attr('speed', 0.8);
+		this.attr('speed', 1.2);
 		this.attr('atk', 1);
 	},
 });
@@ -288,7 +288,7 @@ Crafty.c('MonsterC', {
 		
 		// monster hp
 		this.attr('hp', 5);
-		this.attr('speed', 0.6);
+		this.attr('speed', 1);
 		this.attr('atk', 1);
 	},
 });
@@ -313,11 +313,18 @@ Crafty.c('Hero', {
 		setEntityInfo(this, staticInfo.heroInitPos);
 		this.attr('hp', 3);
 		var self = this;
-		setTimeout(function(){ self.wudi = false; }, 2000);
+		setTimeout(function(){ self.wudi = false; }, 1000);
 		return this;
 	},
 	beHitted: function ( atk ) {
 		if( this.wudi ) return;
+		
+		var body = Crafty.e('2D, Canvas, Tween, hero_death')
+		.attr({x: this.x, y: this.y, alpha:1.0})
+		.tween({alpha: 0 }, 900);
+		this.delay(function(){
+			body.destroy();
+		}, 1000);
 		
 		var hpnow = this.attr('hp') - atk;
 		if(hpnow == 0)
@@ -554,7 +561,8 @@ function gameinit( heroes ) {
 	 	 "images/avatar2.png",
 		 "images/bullet.png",
 		 "images/daoguang.png",
-		 "images/monster.png"], 
+		 "images/monster.png",
+		 "images/hero_death.png"], 
 	    function() {
 	        //when loaded
 			Crafty.init(STAGEWIDTH,STAGEHEIGHT);
@@ -564,6 +572,7 @@ function gameinit( heroes ) {
 			// Load Game Sprite Sprites
 			Crafty.sprite(100,75,'images/avatar1.png',{'avatar1':[0,0]});
 			Crafty.sprite(100,75,'images/avatar2.png',{'avatar2':[0,0]});
+			Crafty.sprite(100,75,'images/hero_death.png',{'hero_death':[0,0]});
 			Crafty.sprite(15,3,'images/bullet.png',{'bullet':[0,0]});
 			Crafty.sprite(100,75,'images/daoguang.png',{'daoguang':[0,0]});
 			Crafty.sprite(75,75,'images/monster.png',{'monsterAnim':[0,0]});
