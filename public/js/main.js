@@ -211,6 +211,9 @@ Crafty.c('Monster', {
 		return this;
 	},
 	_moveToTarget: function () {
+		if( !this._target || this._target.isDeath ) return;
+		
+		
 		var mindist = 0;
 		heroEntities.forEach(function(entity){
 			var dist = distance(entity, this);
@@ -346,6 +349,8 @@ Crafty.c('Hero', {
 		for(var i in heroEntities){
 			if( heroEntities[i] && !heroEntities[i].isDeath ){
 				over = false;
+			}else{
+				heroEntities[i] = null;
 			}
 		}
 		if(over){
