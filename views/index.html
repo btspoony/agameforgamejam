@@ -12,12 +12,17 @@
 		border:none;
 	}
 	#start_btn{
-		background: url('images/index_start1.png') no-repeat;
 		position:absolute;
 		width: 174px;
 		height: 77px;
 		top: 503px;
 		left:410px;
+	}
+	.start_btn{
+		background: url('images/index_start.png') no-repeat;
+	}
+	.start_btn_on{
+		background: url('images/index_start.png') no-repeat -174px 0px;
 	}
 	.hero1{
 		background: url('images/index_gun1.png') no-repeat;
@@ -60,6 +65,7 @@
 		left:0px;
 		z-index:1;
 		display:-webkit-box;
+		-webkit-box-align:"start";
 	}
 	.bottom{
 		background: url("images/bottom.png") no-repeat;
@@ -69,11 +75,30 @@
 		height:47px;
 		background-size:contain;
 	}
+	ul.avatars{
+		list-style-type: none;
+		width:960px;
+		position:absolute;
+		top:0px;
+		left:0px;
+	}
+	.avatars li{
+		float:left;
+		width:100%;
+		height:75px;
+	}
 	.avatar1{
 		background: url("images/avatar1.png") no-repeat;
 	}
 	.avatar2{
 		background: url("images/avatar2.png") no-repeat;
+	}
+	#monsternum{
+		position:absolute;
+		left: 20px;
+		background: url("images/monster_hp.png") no-repeat;
+		width:910px;
+		height:15px;
 	}
 </style>
 
@@ -86,27 +111,19 @@
 		<li class="btn hero3" id="hero3"></li>
 		<li class="btn hero4" id="hero4"></li>
 	</ul>
-	<div id="start_btn"></div>
+	<div id="start_btn" class="start_btn"></div>
 </div>
 
 <div id="gameui" class="hidden">
-	<div id="user1" class="avatar1">
-		<div class="hp"></div>
+	<div id="monsternum">
+		
 	</div>
-	<div id="user2" class="avatar2">
-		<div class="hp"></div>
-	</div>
-	<div id="user3">
-		<div class="hp"></div>
-	</div>
-	<div id="user4">
-		<div class="hp"></div>
-	</div>
+	<ul class="avatars">
+		<li class="avatar1" id="user1"></li>
+		<li class="avatar2" id="user2"></li>
+	</ul>
 	<div id="bottom" class="bottom">
 		<div id="levelnum">
-
-		</div>
-		<div id="monsternum">
 
 		</div>
 	</div>

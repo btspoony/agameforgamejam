@@ -120,6 +120,7 @@ Crafty.c("MonsterControl",{
 		this.attr('MonsLeft', data.maxMons);
 		this._monsTotal = data.monsTotal;
 		this._spawnSpeed = data.spawnSpeed;
+		this.attr("MonsTotal", this._monsTotal.length);
 		return this;
 	},
 	start: function () { // Game Start
@@ -246,6 +247,11 @@ Crafty.c('Monster', {
 			this.animate("die", 10);
 			
 			this.delay(function(){
+				var n = globalEntity.attr("MonsLeft");
+				globalEntity.attr("MonsLeft", n - 1);
+				
+				var t = globalEntity.attr("MonsTotal");
+				ui_updateMonsterNum( n, t, n/t );
 				this.destroy();
 			}, 100);
 			
@@ -293,7 +299,7 @@ Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
 		// this.requires("2D, Canvas, Persist, HeroRemoteController");
-		this.requires("2D, Canvas, Persist, HeroControll");
+		this.requires("2D, Canvas, Persist, HeroRemoteController");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -492,6 +498,7 @@ Crafty.c("Ammo",{
 	}
 });
 
+var globalEntity;
 var currentLevel;
 var heroEntities = [];
 
@@ -502,9 +509,13 @@ var herocontroller = [0,0,0,0];
 function gameinit( heroes ) {
 	currentLevel = 1;
 	
-	Crafty.scene("Level1",function () {
-		// special for Level 1
-	});
+	for(var i=0; i<10; ++i)
+	{
+		Crafty.scene("Level"+i,function () {
+			// special for Level 1
+		
+		});
+	}
 
 	Crafty.load(
 		["images/avatar1.png",
@@ -539,7 +550,7 @@ function gameinit( heroes ) {
 			}
 			
 			// Create Global
-			Crafty.e('LevelData, MonsterControl');
+			globalEntity = Crafty.e('LevelData, MonsterControl');
 			
 			// Start a level
 			nextLevel();
@@ -559,6 +570,8 @@ function gameinit( heroes ) {
 };
 
 function nextLevel() {
+	ui_updateMonsterNum(1,1);
+	
 	if(currentLevel<10){
 		Crafty.scene("Level"+currentLevel); //go to main scene
 		
@@ -583,8 +596,10 @@ function nextLevel() {
 function updateLevelNum (num) {
 	$('#levelnum').value(num);
 }
-function updateMonsterNum (num) {
-	$('#monsternum').value(num);
+function ui_updateMonsterNum (num, total) {
+	var r = num / total;
+	$('#monsternum').width( r * 910 );
+	$('#monsternum').css("left", 20 + ( 960 - r * 910 ) / 2 );
 }
 function updateUserHP (id, hp) {
 	$('#user'+id+".hp").value(hp);
@@ -634,6 +649,7 @@ $(function(){
 		
 		// when start remove all things
 		$('#start_btn').click(function () {
+				$('#start_btn').addClass("start_btn_on");
 			if(!gameStarted && can_start){
 				$('#hero_selector').addClass('hidden');
 				$('#cr-stage').removeClass('hidden');
