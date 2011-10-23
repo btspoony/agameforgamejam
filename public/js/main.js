@@ -228,10 +228,10 @@ Crafty.c('Monster', {
 		// Set auto rotate
 		this.rotation = angle / Math.PI * 180;
 		
-		if(mindist>50){
+		if(mindist>25){
 			this.x += this._movement.x;
 			this.y += this._movement.y;
-		}else if(mindist < 75){
+		}else if(mindist < 100){
 			this._target.beHitted(this.attr("atk"));
 		}
 		
@@ -268,7 +268,7 @@ Crafty.c('MonsterA', {
 		
 		// monster hp
 		this.attr('hp', 1);
-		this.attr('speed', 1);
+		this.attr('speed', 1.5);
 		this.attr('atk', 1);
 	},
 });
@@ -278,7 +278,7 @@ Crafty.c('MonsterB', {
 		
 		// monster hp
 		this.attr('hp', 2);
-		this.attr('speed', 0.8);
+		this.attr('speed', 1.2);
 		this.attr('atk', 1);
 	},
 });
@@ -288,7 +288,7 @@ Crafty.c('MonsterC', {
 		
 		// monster hp
 		this.attr('hp', 5);
-		this.attr('speed', 0.6);
+		this.attr('speed', 1);
 		this.attr('atk', 1);
 	},
 });
