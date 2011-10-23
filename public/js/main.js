@@ -343,6 +343,9 @@ Crafty.c('Hero', {
 		this.attr('hp', hpnow);
 	},
 	playDie: function () {
+		gameover();
+		return;
+		
 		this.isDeath = true;
 		
 		var over = true;
@@ -661,8 +664,9 @@ function gameinit() {
 			var heroes = [];
 			herocontroller.forEach(function(ele, index){
 				if(ele !== 0){
-					gamelog("Create Hero: "+ index);
-					heroEntities[index] = Crafty.e("hero"+(index+1));
+					var i = index+1;
+					gamelog("Create Hero: "+ i);
+					heroEntities[index] = Crafty.e("hero"+i);
 				}
 			});
 			
@@ -770,7 +774,7 @@ $(function(){
 					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
 					var entity = heroEntities[ hero];
-					entity[ data.msg.type ].apply(entity, [data.msg.data]);
+					if(entity && entity[data.msg.type]) entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				}catch(ex){
 					gamelog(data.msg.type);
 					gamelog("Exception:"+ex.message);

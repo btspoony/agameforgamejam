@@ -72,7 +72,7 @@ app.listen(port);
 
 // ======= Now Server Started ========
 
-var Eagle = require('node-eagle').Eagle;
+var Eagle = require('eagle').Eagle;
 var eagle = new Eagle(app, app.store);
 
 eagle.nsInit(require('./lib/GameClient'));
