@@ -84,14 +84,17 @@
 	}
 	.avatars li{
 		float:left;
-		width:100%;
-		height:75px;
+		width:120px;
+		height:25px;
 	}
 	.avatar1{
-		background: url("images/avatar1.png") no-repeat;
+/*		one-width:40px;*/
+		background: url("images/hero1.png") repeat;
 	}
 	.avatar2{
-		background: url("images/avatar2.png") no-repeat;
+		background: url("images/hero2.png") repeat;
+		width:120px;
+		height:25px;
 	}
 	#monsternum{
 		position:absolute;
@@ -99,6 +102,19 @@
 		background: url("images/monster_hp.png") no-repeat;
 		width:910px;
 		height:15px;
+	}
+	#flashlogo{
+		position:absolute;
+		width:176px;
+		height:78px;
+		left:380px;
+		top:240px;
+	}
+	.flashlogo{
+		background: url("images/flashlogo.png") no-repeat;
+	}
+	.flashlogo_on{
+		background: url("images/flashlogo.png") no-repeat 0px -78px;
 	}
 </style>
 
@@ -115,6 +131,9 @@
 </div>
 
 <div id="gameui" class="hidden">
+	<div id="flashlogo" class="flashlogo">
+		
+	</div>
 	<div id="monsternum">
 		
 	</div>
