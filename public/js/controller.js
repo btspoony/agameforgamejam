@@ -236,9 +236,9 @@ $(function() {
 		// client render code
 		
 		// limit posting times
-		var newTimer = getTimer();
-		if( newTimer - lastPostTime < postInterval ) return;
-		lastPostTime = newTimer;
+		// var newTimer = getTimer();
+		// if( newTimer - lastPostTime < postInterval ) return;
+		// lastPostTime = newTimer;
 		
 		if( type == "move" )
 		{
