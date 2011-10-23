@@ -428,7 +428,6 @@ Crafty.c('hero1', {
 	},
 });
 
-
 Crafty.c('hero2', {
 	_lastShootTime: 0,
 	init: function () {
@@ -437,6 +436,63 @@ Crafty.c('hero2', {
 		this.attr("skillInterval", 3);
 		
 		this.uiid = "2";
+	},
+	start: function(){
+		this.origin("center");
+		
+		if(!this._skill){
+			this._skill = Crafty.e('Knife').placeby(this);
+			this.attach(this._skill);
+			// hit test
+			this._skill.collision(new Crafty.polygon([0,0],[20,0],[20, 20],[0, 20]));	
+		}
+		return this;
+	},
+	shoot: function () {
+		var interval = this.attr("skillInterval");
+		var frame = Crafty.frame();
+		if(frame - this._lastShootTime > interval){
+			this._lastShootTime = frame;
+			this._skill.rotation = this.rotation;
+			this._skill.play();
+		}
+		return this;
+	},
+});
+
+Crafty.c('hero3', {
+	_lastShootTime: 0,
+	init: function () {
+		this.requires("Hero, avatar1, HeroControll");
+		// attr
+		this.attr("skillInterval", 6);
+		
+		this.uiid = "3";
+	},
+	start: function(){
+		this.origin("center");
+		return this;
+	},
+	shoot: function () {
+		var interval = this.attr("skillInterval");
+		var frame = Crafty.frame();
+		if(frame - this._lastShootTime > interval){
+			this._lastShootTime = frame;
+			// Spawn new Ammo
+			Crafty.e("Ammo").from(this);
+		}
+		return this;
+	},
+});
+
+Crafty.c('hero4', {
+	_lastShootTime: 0,
+	init: function () {
+		this.requires("Hero, avatar2");
+		// attr
+		this.attr("skillInterval", 3);
+		
+		this.uiid = "4";
 	},
 	start: function(){
 		this.origin("center");
