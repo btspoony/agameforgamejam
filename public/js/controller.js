@@ -31,7 +31,7 @@ $(function() {
 				
 				$("#controller").removeClass("hidden");
 				$("#mobilemain").addClass("hidden");
-				$("#area").addClass("sel" + userId);
+				// $("#area").addClass("sel" + userId);
 			}	
 		});
 	});
@@ -250,8 +250,8 @@ $(function() {
 		
 		if( type == "attack" )
 		{
-			$("#area").addClass("sel"+userId+"_on");
-			setTimeout(function() {$("#area").removeClass("sel"+userId+"_on");}, 100);
+			// $("#area").addClass("sel"+userId+"_on");
+			// setTimeout(function() {$("#area").removeClass("sel"+userId+"_on");}, 100);
 		}
 		
 		// send data to socketio
