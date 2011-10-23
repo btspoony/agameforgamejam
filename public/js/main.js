@@ -231,7 +231,7 @@ Crafty.c('Monster', {
 		if(mindist>50){
 			this.x += this._movement.x;
 			this.y += this._movement.y;
-		}else{
+		}else if(mindist < 75){
 			this._target.beHitted(this.attr("atk"));
 		}
 		
@@ -313,11 +313,18 @@ Crafty.c('Hero', {
 		setEntityInfo(this, staticInfo.heroInitPos);
 		this.attr('hp', 3);
 		var self = this;
-		setTimeout(function(){ self.wudi = false; }, 2000);
+		setTimeout(function(){ self.wudi = false; }, 1000);
 		return this;
 	},
 	beHitted: function ( atk ) {
 		if( this.wudi ) return;
+		
+		var body = Crafty.e('2D, Canvas, Tween, hero_death')
+		.attr({x: this.x, y: this.y, alpha:1.0})
+		.tween({alpha: 0 }, 900);
+		this.delay(function(){
+			body.destroy();
+		}, 1000);
 		
 		var hpnow = this.attr('hp') - atk;
 		if(hpnow == 0)
@@ -345,13 +352,6 @@ Crafty.c('Hero', {
 		}
 		
 		this.destroy();
-		
-		var body = Crafty.e('2D, Canvas, hero_death');
-		body.x = this.x;
-		body.y = this.y;
-		this.delay(function(){
-			body.destroy();
-		}, 1000);
 		return this;
 	},
 });
