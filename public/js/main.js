@@ -187,16 +187,6 @@ Crafty.c('Monster', {
 		this.bind('EnterFrame', function () {
 			if(this._status == "move" ){				
 				this._moveToTarget();
-
-				var hittest = this.hit("Hero");
-				if(!hittest){
-					this.x += this._movement.x;
-					this.y += this._movement.y;
-				}else{
-					hittest.forEach(function(ele){
-						ele.obj.beHitted(this.attr("atk"));
-					}, this);
-				}
 				
 				if(this.attr('hp') <= 0){
 					this.playDie();
@@ -233,6 +223,16 @@ Crafty.c('Monster', {
 		this._movement.x = Math.round(Math.cos(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		this._movement.y = Math.round(Math.sin(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		
+		// Set auto rotate
+		this.rotation = angle / Math.PI * 180;
+		
+		if(mindist>50){
+			this.x += this._movement.x;
+			this.y += this._movement.y;
+		}else{
+			this._target.beHitted(this.attr("atk"));
+		}
+		
 		return this;
 	},
 	playMove: function () {
@@ -263,7 +263,6 @@ Crafty.c('Monster', {
 Crafty.c('MonsterA', {
 	init: function () {
 		this.requires('Monster');
-		this.color("blue").attr({w:10,h:10});
 		
 		// monster hp
 		this.attr('hp', 1);
@@ -274,7 +273,6 @@ Crafty.c('MonsterA', {
 Crafty.c('MonsterB', {
 	init: function () {
 		this.requires('Monster');
-		this.color("green").attr({w:10,h:10});
 		
 		// monster hp
 		this.attr('hp', 2);
@@ -285,11 +283,10 @@ Crafty.c('MonsterB', {
 Crafty.c('MonsterC', {
 	init: function () {
 		this.requires('Monster');
-		this.color("pink").attr({w:10,h:10});
 		
 		// monster hp
 		this.attr('hp', 5);
-		this.attr('speed', 0.5);
+		this.attr('speed', 0.8);
 		this.attr('atk', 10);
 	},
 });
@@ -298,8 +295,8 @@ Crafty.c('MonsterC', {
 Crafty.c('Hero', {
 	init: function () {
 		// this.requires("2D, Canvas, SpriteAnimation, Persist, HeroControll");
+		this.requires("2D, Canvas, Persist, HeroControll");
 		// this.requires("2D, Canvas, Persist, HeroRemoteController");
-		this.requires("2D, Canvas, Persist, HeroRemoteController");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -317,16 +314,6 @@ Crafty.c('Hero', {
 	beHitted: function ( atk ) {
 		var hpnow = this.attr('hp');
 		this.attr('hp', hpnow - atk);
-		this.playHitted();
-	},
-	playMove: function () {
-		return this;
-	},
-	playHitted: function () {
-		return this;
-	},
-	playAttack: function () {
-		return this;
 	},
 	playDie: function () {
 		return this;
@@ -481,8 +468,8 @@ Crafty.c("Ammo",{
 		this.requires("2D, Canvas, Weapon, bullet");
 	},
 	from: function (hero) {
-		this.x = hero.x;
-		this.y = hero.y;
+		this.x = hero.x + hero.w/2;
+		this.y = hero.y + hero.h/2;
 		this.rotation = hero.rotation;
 		var dx = - Math.round(Math.cos(this.rotation*(Math.PI/180))*1000 * this._speed)/1000,
 			dy = - Math.round(Math.sin(this.rotation*(Math.PI/180))*1000 * this._speed)/1000;
@@ -539,8 +526,7 @@ function gameinit( heroes ) {
 			Crafty.sprite(26,48,'images/daoguang.png',{'daoguang':[0,0]});
 			Crafty.sprite(176,78,'images/LOGO1.png',{'logo1':[0,0]});
 			Crafty.sprite(176,78,'images/LOGO2.png',{'logo2':[0,0]});
-			Crafty.sprite(75,75,'images/monster_move.png',{'monster_move':[0,0]});
-			Crafty.sprite(75,75,'images/monster_death.png',{'monster_death':[0,0]});
+			Crafty.sprite(75,75,'images/monster.png',{'monsterAnim':[0,0]});
 			
 			// ========== Here create presist entities
 			// Create Heroes
