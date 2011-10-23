@@ -115,7 +115,50 @@
 	.flashlogo_on{
 		background: url("images/flashlogo.png") no-repeat 0px -78px;
 	}
+	
+/*	game over*/
+	#background{
+		background: url("images/battle_bg.jpg") no-repeat;
+		position:absolute;
+		left:0px;
+		top:0px;
+		width:960px;
+		height:640px;
+	}
+	#boneleft{
+		background: url("images/battle_bone1.png") no-repeat;
+		position:absolute;
+		width:172px;
+		height:484px;
+		left:0px;
+		top:100px;
+	}
+	#boneright{
+		background: url("images/battle_bone2.png") no-repeat;
+		position:absolute;
+		width:174px;
+		height:484px;
+		right:0px;
+		top:100px;
+	}
+	#human{
+		background: url("images/battle_human.png") no-repeat;
+		position:absolute;
+		width:433px;
+		height:640px;
+		left:277px;
+		top:15px;
+	}
+	#gameover{
+		background: url("images/gameover.png") no-repeat;
+		position:absolute;
+		width:572px;
+		height:138px;
+		left:200px;
+		top:200px;
+	}
 </style>
+
 
 
 <div id="hero_selector">
@@ -145,6 +188,21 @@
 		<li class="avatar1" id="user1"></li>
 		<li class="avatar2" id="user2"></li>
 	</ul>
+</div>
+
+<div id="background" class="hidden">
+	<div id="boneleft">
+		
+	</div>
+	<div id="boneright">
+		
+	</div>
+	<div id="human">
+		
+	</div>
+	<div id="gameover">
+		
+	</div>
 </div>
 <div id="cr-stage" class='hidden'></div>
 <div id="output"> Output: <br/></div>
