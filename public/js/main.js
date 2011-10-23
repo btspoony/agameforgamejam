@@ -228,9 +228,9 @@ Crafty.c('Monster', {
 		// Set auto rotate
 		this.rotation = angle / Math.PI * 180;
 		
-		if(mindist < 50){
+		if(mindist < 75){
 			this._target.beHitted(this.attr("atk"));
-		}else if(mindist>25){
+		}else if(mindist>50){
 			this.x += this._movement.x;
 			this.y += this._movement.y;
 		}
@@ -556,10 +556,12 @@ function gameinit( heroes ) {
 	{
 		Crafty.scene("Level"+i,function () {
 			// special for Level 1
-		
 		});
 	}
-
+	Crafty.scene("End",function () {
+		// special for Level 1
+	});
+	
 	Crafty.load(
 		["images/avatar1.png",
 	 	 "images/avatar2.png",
@@ -640,7 +642,7 @@ function nextLevel() {
 	}else{
 		//TODO End Game
 		Crafty.stop();
-		gameStarted = false
+		gameStarted = false;
 	}
 }
 
@@ -657,7 +659,9 @@ function ui_updateUserHP (id, hp) {
 }
 
 function gameover () {
-	// gamelog("GAME OVER");
+	Crafty.scene("End");
+	Crafty.stop();
+	gameStarted = false;
 
 	$("#background").removeClass("hidden");
 	
@@ -702,7 +706,6 @@ $(function(){
 					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
 					var entity = heroEntities[ hero-1 ];
-					gamelog([data.msg.type, hero]);
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				}catch(ex){
 					gamelog(data.msg.type);
