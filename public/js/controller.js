@@ -19,6 +19,8 @@ $(function() {
 		var id = $(this).attr("id");
 		userId = id;
 		
+		$("#"+id).addClass(id+"_on");
+		
 		// register to server
 		$.getJSON('connect/'+id, function(data) {
 			if(data.error)
