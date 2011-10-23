@@ -214,9 +214,10 @@ Crafty.c('Monster', {
 		
 		var mindist = 0;
 		heroEntities.forEach(function(entity){
+			if(entity.isDeath) return;
+			
 			var dist = distance(entity, this);
-			if( mindist == 0 || dist < mindist
-				&&  !entity.isDeath  ) {
+			if( mindist == 0 || dist < mindist ) {
 				mindist = dist;
 				this._target = entity;
 			}
@@ -467,7 +468,7 @@ Crafty.c('hero2', {
 Crafty.c('hero3', {
 	_lastShootTime: 0,
 	init: function () {
-		this.requires("Hero, avatar1, HeroControll");
+		this.requires("Hero, avatar1");
 		// attr
 		this.attr("skillInterval", 6);
 		
@@ -609,7 +610,7 @@ var can_start = false;
 var herocontroller = [0,0,0,0];
 
 
-function gameinit( heroes ) {
+function gameinit() {
 	currentLevel = 1;
 	
 	for(var i=0; i<10; ++i)
@@ -656,11 +657,14 @@ function gameinit( heroes ) {
 			Crafty.audio.play("bgm", -1);
 			
 			// ========== Here create presist entities
-			// Create Heroes
-			for(var k in heroes){
-				gamelog("Create Hero: "+ heroes[k]);
-				heroEntities[k] = Crafty.e(heroes[k]);
-			}
+			
+			var heroes = [];
+			herocontroller.forEach(function(ele, index){
+				if(ele !== 0){
+					gamelog("Create Hero: "+ index);
+					heroEntities[index] = Crafty.e("hero"+(index+1));
+				}
+			});
 			
 			// Create Global
 			globalEntity = Crafty.e('LevelData, MonsterControl');
@@ -754,7 +758,7 @@ $(function(){
 
 				if(herocontroller.indexOf(session) < 0){
 					can_start = true;
-					herocontroller[hero] = session;
+					herocontroller[hero-1] = session;
 					$('#hero'+hero).addClass('hero'+hero+'_on');
 					output.append('"HERO ' + hero + '" connected ! session is "'+session+'" <br/>');
 				}				
@@ -765,7 +769,7 @@ $(function(){
 					var hero = Number(herocontroller.indexOf( data.user.id ));
 					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
-					var entity = heroEntities[ hero-1 ];
+					var entity = heroEntities[ hero];
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				}catch(ex){
 					gamelog(data.msg.type);
@@ -787,13 +791,7 @@ $(function(){
 				$('#gameui').removeClass('hidden');
 				
 				// Game Start
-				var heroes = [];
-				herocontroller.forEach(function(ele, index){
-					if(ele !== 0){
-						heroes.push("hero"+index);
-					}
-				});
-				gameinit(heroes);
+				gameinit();
 			}
 		});
 	});
