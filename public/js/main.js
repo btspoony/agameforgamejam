@@ -327,7 +327,7 @@ Crafty.c('Hero', {
 			this.reset();
 		}
 		ui_updateUserHP( this.uiid, hpnow );
-		this.attr('hp', hpnow - atk);
+		this.attr('hp', hpnow);
 	},
 	playDie: function () {
 		this.destroy();
@@ -468,13 +468,15 @@ Crafty.c("Knife",{
 		if(hittest){
 			var self = this;
 
-			function hitMonster(entity){
-				var hp = entity.attr('hp');
-				entity.attr('hp', hp - self.attr("demage"));
-			};
+			// function hitMonster(entity){
+			// 	var hp = entity.attr('hp');
+			// 	entity.attr('hp', hp - self.attr("demage"));
+			// };
 			
 			hittest.forEach(function (ele) {
-				hitMonster(ele.obj);
+				var entity = ele.obj;
+				var hp = entity.attr('hp');
+				entity.attr('hp', hp - self.attr("demage"));
 			},this);
 		}
 		
