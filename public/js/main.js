@@ -332,6 +332,18 @@ Crafty.c('Hero', {
 		this.attr('hp', hpnow);
 	},
 	playDie: function () {
+		this.isDeath = true;
+		
+		var over = true;
+		for(var i in heroEntities){
+			if( heroEntities[i] && !heroEntities[i].isDeath ){
+				over = false;
+			}
+		}
+		if(over){
+			gameover();
+		}
+		
 		this.destroy();
 		return this;
 	},
@@ -524,6 +536,10 @@ var heroEntities = [];
 var gameStarted = false;
 var can_start = false;
 var herocontroller = [0,0,0,0];
+
+function gameover () {
+	gamelog("GAME OVER");
+}
 
 function gameinit( heroes ) {
 	currentLevel = 1;
