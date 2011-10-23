@@ -63,8 +63,17 @@
 	}
 	.bottom{
 		background: url("images/bottom.png") no-repeat;
-		-webkit-box-pack:"end";
+		position:absolute;
+		bottom:0px;
+		width:960px;
+		height:47px;
 		background-size:contain;
+	}
+	.avatar1{
+		background: url("images/avatar1.png") no-repeat;
+	}
+	.avatar2{
+		background: url("images/avatar2.png") no-repeat;
 	}
 </style>
 
@@ -81,20 +90,16 @@
 </div>
 
 <div id="gameui" class="hidden">
-	<div id="user1">
-		<div class="avatar"></div>
+	<div id="user1" class="avatar1">
 		<div class="hp"></div>
 	</div>
-	<div id="user2">
-		<div class="avatar"></div>
+	<div id="user2" class="avatar2">
 		<div class="hp"></div>
 	</div>
 	<div id="user3">
-		<div class="avatar"></div>
 		<div class="hp"></div>
 	</div>
 	<div id="user4">
-		<div class="avatar"></div>
 		<div class="hp"></div>
 	</div>
 	<div id="bottom" class="bottom">

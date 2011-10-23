@@ -29,9 +29,16 @@ function distance (entityA, entityB) {
 	return Math.sqrt(dx*dx +dy*dy);
 }
 
-var gamelog = function(str) {
+function isArray(o) { 
+    if (o) {
+       return L.isNumber(o.length) && L.isFunction(o.splice);
+    }
+    return false;
+}
+
+function gamelog(str) {
 	output.append(str+"<br />");
-};
+}
 
 var STAGEWIDTH = 960,
 	STAGEHEIGHT = 640;
@@ -138,7 +145,7 @@ Crafty.c("MonsterControl",{
 					rndY = randInt(50)-25;
 					
 					name = this._monsTotal.shift();
-					Crafty.e(name).spawn(randPos[0]+rndX, randPos[1]+rndY, Math.random()*0.6-0.3);
+					Crafty.e(name).spawn(randPos[0]+rndX, randPos[1]+rndY);
 					spawnLeft--;
 				}
 			}
@@ -163,10 +170,9 @@ Crafty.c('Monster', {
 		this.requires("2D, Canvas, Collision, SpriteAnimation");
 		this.visible = false;
 	},
-	spawn: function (x, y, s) {
+	spawn: function (x, y) {
 		this.x = x;
 		this.y = y;
-		this.attr('speed', this.attr('speed')+s);
 		this._movement = {x:0, y:0};
 		this.visible = true;
 		
@@ -192,11 +198,10 @@ Crafty.c('Monster', {
 		});
 		
 		//collision
-		this.collision().onHit("Weapon", function (data) {
+		this.collision().onHit("Ammo", function (data) {
 			// Be check HP
 			var weapon, hp;
 			data.forEach(function(ele){
-				gamelog('Weapon');
 				var weapon = ele.obj;
 				var hp = this.attr('hp');
 				this.attr('hp', hp - weapon.attr("demage"));
@@ -218,8 +223,8 @@ Crafty.c('Monster', {
 			}
 		},this);
 		var angle = Math.atan2(this._target.y-this.y, this._target.x-this.x);
-		this._movement.x = Math.round(Math.cos(angle) * 1000 * this.attr('speed') )/1000;
-		this._movement.y = Math.round(Math.sin(angle) * 1000 * this.attr('speed') )/1000;
+		this._movement.x = Math.round(Math.cos(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
+		this._movement.y = Math.round(Math.sin(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		
 		return this;
 	},
@@ -308,7 +313,6 @@ Crafty.c('Hero', {
 	beHitted: function ( atk ) {
 		var hpnow = this.attr('hp');
 		this.attr('hp', hpnow - atk);
-		// gamelog('be hitted '+ atk+" Now "+ this.attr('hp'));
 		this.playHitted();
 	},
 	playMove: function () {
@@ -384,6 +388,9 @@ Crafty.c('hero1', {
 		this.color("red");
 		this.attr({w:25, h:25});
 	},
+	start: function(){
+		return this;
+	},
 	shoot: function () {
 		var interval = this.attr("skillInterval");
 		var frame = Crafty.frame();
@@ -401,21 +408,38 @@ Crafty.c('hero2', {
 	init: function () {
 		this.requires("Hero, Color");
 		// attr
-		this.attr("skillInterval", 10);
 		
 		this.color("red");
 		this.attr({w:25,h:25});
 	},
+	start: function(){
+		this._skill = Crafty.e('Knife').placeby(this);
+		this.attach(this._skill);
+		// hit test
+		this._skill.collision();
+		return this;
+	},
 	shoot: function () {
+		this._skill.play();
+		
 		return this;
 	},
 });
 
 // ======= FX Component ========
-Crafty.c("SkillFX",{
+
+Crafty.c("Weapon", {
+	init: function () {
+		this.attr("demage", 1);
+	}
+});
+
+Crafty.c("Knife",{
 	init: function() {
-		this.requires("2D, Canvas, Color");
-		this.color("red");
+		this.requires("2D, Canvas, Color, Weapon, Collision");
+		this.attr({w:50,h:50});
+		this.color("white");
+		
 		this.visible = false;
 	},
 	/**
@@ -423,18 +447,32 @@ Crafty.c("SkillFX",{
 	 * @return {Object} the entity
 	 */
 	play: function() {
-		this.attr("visible",true);
+		this.visible = true;
 		this.delay(function () {
-			this.attr("visible",false);
+			this.visible = false;
 		},100);
-		return this;
-	}
-});
+		
+		var hittest = this.hit("Monster");
+		if(hittest){
+			var self = this;
 
-Crafty.c("Weapon", {
-	init: function () {
-		this.attr("demage", 1);
-	}
+			function hitMonster(entity){
+				var hp = entity.attr('hp');
+				entity.attr('hp', hp - self.attr("demage"));
+			};
+			
+			hittest.forEach(function (ele) {
+				hitMonster(ele.obj);
+			},this);
+		}
+		
+		return this;
+	},
+	placeby: function(parent) {
+		this.x = parent.x - (this.w - parent.w)/2;
+		this.y = parent.y - (this.h - parent.h)/2;
+		return this;
+	},
 });
 
 Crafty.c("Ammo",{
