@@ -328,7 +328,7 @@ Crafty.c('Hero', {
 		}, 1000);
 		
 		var hpnow = this.attr('hp') - atk;
-		if(hpnow == 0)
+		if(hpnow <= 0)
 		{
 			this.playDie();
 		}
@@ -702,6 +702,7 @@ $(function(){
 					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
 					var entity = heroEntities[ hero-1 ];
+					gamelog([data.msg.type, hero]);
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
 				}catch(ex){
 					gamelog(data.msg.type);
