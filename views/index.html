@@ -50,6 +50,22 @@
 		width:25%;
 		height:164px;
 	}
+	
+/*	for gaming*/
+	#gameui{
+		width:960px;
+		height:640px;
+		position:absolute;
+		top:0px;
+		left:0px;
+		z-index:1;
+		display:-webkit-box;
+	}
+	.bottom{
+		background: url("images/bottom.png") no-repeat;
+		-webkit-box-pack:"end";
+		background-size:contain;
+	}
 </style>
 
 
@@ -81,11 +97,13 @@
 		<div class="avatar"></div>
 		<div class="hp"></div>
 	</div>
-	<div id="levelnum">
-		
-	</div>
-	<div id="monsternum">
-		
+	<div id="bottom" class="bottom">
+		<div id="levelnum">
+
+		</div>
+		<div id="monsternum">
+
+		</div>
 	</div>
 </div>
 <div id="cr-stage" class='hidden'></div>

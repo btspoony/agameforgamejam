@@ -13,10 +13,11 @@ $(function() {
 	// iPhone.DomLoad(updateLayout);
 	setTimeout(updateLayout, 100);
 	
+	var userId;
+	
 	$(".btn").click(function() {
 		var id = $(this).attr("id");
-		
-		logger(id);
+		userId = id;
 		
 		// register to server
 		$.getJSON('connect/'+id, function(data) {
@@ -26,14 +27,12 @@ $(function() {
 			{
 				localStorage.setItem("session", data.session);
 				
-				$("#controller").show();
-				$("#mobilemain").hide();
+				$("#controller").removeClass("hidden");
+				$("#mobilemain").addClass("hidden");
+				$("#area").addClass("sel" + userId);
 			}	
 		});
 	});
-	
-	$("#mobilemain").show();
-	$("#controller").hide();
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////
@@ -247,7 +246,10 @@ $(function() {
 			oldvy = data.vy;
 		}
 		
-		console.log(type,data);
+		if( type == "attack" )
+		{
+			$("#area").addClass("sel"+userId+"_on").fadeIn(800);
+		}
 		
 		// send data to socketio
 		var session = localStorage.getItem("session");

@@ -308,7 +308,7 @@ Crafty.c('Hero', {
 	beHitted: function ( atk ) {
 		var hpnow = this.attr('hp');
 		this.attr('hp', hpnow - atk);
-		gamelog('be hitted '+ atk+" Now "+ this.attr('hp'));
+		// gamelog('be hitted '+ atk+" Now "+ this.attr('hp'));
 		this.playHitted();
 	},
 	playMove: function () {
@@ -576,20 +576,20 @@ $(function(){
 			}
 		}).on('game control', function (data) {
 			if(gameStarted){
-				try{
+				// try{
 					var hero = Number(herocontroller.indexOf( data.user.id ));
-					for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
+					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
 					if(hero === -1) return;
 					var entity = heroEntities[ hero-1 ];
 					entity[ data.msg.type ].apply(entity, [data.msg.data]);
-				}catch(ex){
-					gamelog(ex.message);
-				}
+				// }catch(ex){
+				// 	gamelog("Exception:"+ex.message);
+				// }
 			}
 		}).on('disconnect', function (msg) {
 			output.append('Server Disconnected! <br/>');
 		}).on('logger', function(data) {
-			console.log(data.msg);
+			gamelog(data.msg);
 		});
 		
 		// when start remove all things

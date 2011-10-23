@@ -41,6 +41,33 @@
 		background: url('images/index_ask2.png') no-repeat;
 	}
 	
+/*	for gaming*/
+	#controller{
+		background: url('images/mobile_game.png') no-repeat;
+		width:480px;
+		height:320px;
+		display:-webkit-box;
+		-webkit-box-align:center;
+		-webkit-box-pack:center;
+	}
+	#area{
+		border:none;
+		background-size:contain;
+		width:33%;
+		height:33%;
+	}
+	.selhero1{
+		background: url('images/mobile_gun1.png') no-repeat;
+	}
+	.selhero2{
+		background: url('images/mobile_knife1.png') no-repeat;
+	}
+	.selhero1_on{
+		background: url('images/mobile_gun2.png') no-repeat;
+	}
+	.selhero2_on{
+		background: url('images/mobile_knife2.png') no-repeat;
+	}
 </style>
 
 <div id="mobilemain">
@@ -54,6 +81,7 @@
 	<div id="ready"></div>
 </div>
 
-<div id="controller" style="background-color:red; width:400px; height:300px">
-	<div id="area" style="width:100%;height:100%"></div>
+<div id="controller" class="hidden">
+	<div id="area">
+	</div>
 </div>
