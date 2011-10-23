@@ -333,6 +333,13 @@ Crafty.c('Hero', {
 	},
 	playDie: function () {
 		this.destroy();
+		
+		var body = Crafty.e('2D, Canvas, hero_death');
+		body.x = this.x;
+		body.y = this.y;
+		this.delay(function(){
+			body.destroy();
+		}, 1000);
 		return this;
 	},
 });
@@ -539,7 +546,8 @@ function gameinit( heroes ) {
 	 	 "images/avatar2.png",
 		 "images/bullet.png",
 		 "images/daoguang.png",
-		 "images/monster.png"], 
+		 "images/monster.png",
+		 "images/hero_death.png"], 
 	    function() {
 	        //when loaded
 			Crafty.init(STAGEWIDTH,STAGEHEIGHT);
@@ -549,6 +557,7 @@ function gameinit( heroes ) {
 			// Load Game Sprite Sprites
 			Crafty.sprite(100,75,'images/avatar1.png',{'avatar1':[0,0]});
 			Crafty.sprite(100,75,'images/avatar2.png',{'avatar2':[0,0]});
+			Crafty.sprite(100,75,'images/hero_death.png',{'hero_death':[0,0]});
 			Crafty.sprite(15,3,'images/bullet.png',{'bullet':[0,0]});
 			Crafty.sprite(100,75,'images/daoguang.png',{'daoguang':[0,0]});
 			Crafty.sprite(75,75,'images/monster.png',{'monsterAnim':[0,0]});
