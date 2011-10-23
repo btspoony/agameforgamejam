@@ -553,9 +553,6 @@ var gameStarted = false;
 var can_start = false;
 var herocontroller = [0,0,0,0];
 
-function gameover () {
-	gamelog("GAME OVER");
-}
 
 function gameinit( heroes ) {
 	currentLevel = 1;
@@ -665,7 +662,22 @@ function ui_updateUserHP (id, hp) {
 	$("#user"+id).css("width", 40 * hp);
 }
 
+function gameover () {
+	// gamelog("GAME OVER");
+
+	$("#background").removeClass("hidden");
+	
+	$("#hunman").fadeOut(2000, function() {
+		$("#boneleft").animate({left:"500px"}, 500);
+		$("#boneright").animate({right:"458px"},500);
+		$("#gameover").hide().fadeIn("slow");
+	});
+	
+}
+
+
 $(function(){
+	
 	console.log('Page Loaded');
 	output = $("#output");
 
