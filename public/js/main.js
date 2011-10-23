@@ -211,13 +211,12 @@ Crafty.c('Monster', {
 		return this;
 	},
 	_moveToTarget: function () {
-		if( !this._target || this._target.isDeath ) return;
-		
 		
 		var mindist = 0;
 		heroEntities.forEach(function(entity){
 			var dist = distance(entity, this);
-			if( mindist == 0 || dist < mindist){
+			if( mindist == 0 || dist < mindist
+				&&  !entity.isDeath  ) {
 				mindist = dist;
 				this._target = entity;
 			}
