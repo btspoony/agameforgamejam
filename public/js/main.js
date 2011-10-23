@@ -228,11 +228,11 @@ Crafty.c('Monster', {
 		// Set auto rotate
 		this.rotation = angle / Math.PI * 180;
 		
-		if(mindist>25){
+		if(mindist < 30){
+			this._target.beHitted(this.attr("atk"));
+		}else if(mindist>25){
 			this.x += this._movement.x;
 			this.y += this._movement.y;
-		}else if(mindist < 100){
-			this._target.beHitted(this.attr("atk"));
 		}
 		
 		return this;
@@ -318,6 +318,9 @@ Crafty.c('Hero', {
 	},
 	beHitted: function ( atk ) {
 		if( this.wudi ) return;
+		
+		// sound
+		Crafty.audio.play("death");
 		
 		var body = Crafty.e('2D, Canvas, Tween, hero_death')
 		.attr({x: this.x, y: this.y, alpha:1.0})
@@ -483,6 +486,9 @@ Crafty.c("Knife",{
 	 * @return {Object} the entity
 	 */
 	play: function() {
+		// sound
+		Crafty.audio.play("knife");
+			
 		this.visible = true;
 		this.delay(function () {
 			this.visible = false;
@@ -519,6 +525,9 @@ Crafty.c("Ammo",{
 		this.requires("2D, Canvas, Weapon, bullet");
 	},
 	from: function (hero) {
+		// sound
+		Crafty.audio.play("gun");
+	
 		this.x = hero.x + hero.w/2;
 		this.y = hero.y + hero.h/2;
 		this.rotation = hero.rotation;
@@ -565,7 +574,10 @@ function gameinit( heroes ) {
 		 "images/bullet.png",
 		 "images/daoguang.png",
 		 "images/monster.png",
-		 "images/hero_death.png"], 
+		 "sound/bgm.mp3",
+		 "sound/death.mp3",
+		 "sound/gun.mp3",
+		 "sound/knife.mp3"], 
 	    function() {
 	        //when loaded
 			Crafty.init(STAGEWIDTH,STAGEHEIGHT);
@@ -579,6 +591,15 @@ function gameinit( heroes ) {
 			Crafty.sprite(15,3,'images/bullet.png',{'bullet':[0,0]});
 			Crafty.sprite(100,75,'images/daoguang.png',{'daoguang':[0,0]});
 			Crafty.sprite(75,75,'images/monster.png',{'monsterAnim':[0,0]});
+			
+			// Add Sound
+			Crafty.audio.add("bgm", "sound/bgm.mp3");
+			Crafty.audio.add("death", "sound/death.mp3");
+			Crafty.audio.add("gun", "sound/gun.mp3");
+			Crafty.audio.add("knife", "sound/knife.mp3");
+			
+			// Play BGM
+			Crafty.audio.play("bgm", -1);
 			
 			// ========== Here create presist entities
 			// Create Heroes
