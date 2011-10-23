@@ -79,7 +79,7 @@
 		list-style-type: none;
 		width:960px;
 		position:absolute;
-		top:0px;
+		bottom:0px;
 		left:0px;
 	}
 	.avatars li{
@@ -93,12 +93,11 @@
 	}
 	.avatar2{
 		background: url("images/hero2.png") repeat;
-		width:120px;
-		height:25px;
 	}
 	#monsternum{
 		position:absolute;
 		left: 20px;
+		top:40px;
 		background: url("images/monster_hp.png") no-repeat;
 		width:910px;
 		height:15px;
@@ -108,7 +107,7 @@
 		width:176px;
 		height:78px;
 		left:380px;
-		top:240px;
+		top:0px;
 	}
 	.flashlogo{
 		background: url("images/flashlogo.png") no-repeat;
@@ -131,21 +130,21 @@
 </div>
 
 <div id="gameui" class="hidden">
-	<div id="flashlogo" class="flashlogo">
-		
-	</div>
 	<div id="monsternum">
 		
 	</div>
-	<ul class="avatars">
-		<li class="avatar1" id="user1"></li>
-		<li class="avatar2" id="user2"></li>
-	</ul>
+	<div id="flashlogo" class="flashlogo">
+		
+	</div>
 	<div id="bottom" class="bottom">
 		<div id="levelnum">
 
 		</div>
 	</div>
+	<ul class="avatars">
+		<li class="avatar1" id="user1"></li>
+		<li class="avatar2" id="user2"></li>
+	</ul>
 </div>
 <div id="cr-stage" class='hidden'></div>
 <div id="output"> Output: <br/></div>

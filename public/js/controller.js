@@ -250,7 +250,8 @@ $(function() {
 		
 		if( type == "attack" )
 		{
-			$("#area").addClass("sel"+userId+"_on").fadeIn(800);
+			$("#area").addClass("sel"+userId+"_on");
+			setTimeout(function() {$("#area").removeClass("sel"+userId+"_on");}, 100);
 		}
 		
 		// send data to socketio

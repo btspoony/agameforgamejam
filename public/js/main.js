@@ -269,7 +269,7 @@ Crafty.c('MonsterA', {
 		// monster hp
 		this.attr('hp', 1);
 		this.attr('speed', 1);
-		this.attr('atk', 2);
+		this.attr('atk', 1);
 	},
 });
 Crafty.c('MonsterB', {
@@ -279,7 +279,7 @@ Crafty.c('MonsterB', {
 		// monster hp
 		this.attr('hp', 2);
 		this.attr('speed', 0.8);
-		this.attr('atk', 4);
+		this.attr('atk', 1);
 	},
 });
 Crafty.c('MonsterC', {
@@ -289,7 +289,7 @@ Crafty.c('MonsterC', {
 		// monster hp
 		this.attr('hp', 5);
 		this.attr('speed', 0.6);
-		this.attr('atk', 10);
+		this.attr('atk', 1);
 	},
 });
 
@@ -309,15 +309,30 @@ Crafty.c('Hero', {
 		});
 	},
 	reset: function() {
+		this.wudi = true;
 		setEntityInfo(this, staticInfo.heroInitPos);
-		this.attr('hp', 100);
+		this.attr('hp', 3);
+		var self = this;
+		setTimeout(function(){ self.wudi = false; }, 2000);
 		return this;
 	},
 	beHitted: function ( atk ) {
-		var hpnow = this.attr('hp');
+		if( this.wudi ) return;
+		
+		var hpnow = this.attr('hp') - atk;
+		if(hpnow == 0)
+		{
+			this.playDie();
+		}
+		else
+		{
+			this.reset();
+		}
+		ui_updateUserHP( this.uiid, hpnow );
 		this.attr('hp', hpnow - atk);
 	},
 	playDie: function () {
+		this.destroy();
 		return this;
 	},
 });
@@ -377,6 +392,8 @@ Crafty.c('hero1', {
 		this.requires("Hero, avatar1");
 		// attr
 		this.attr("skillInterval", 6);
+		
+		this.uiid = "1";
 	},
 	start: function(){
 		this.origin("center");
@@ -401,6 +418,8 @@ Crafty.c('hero2', {
 		this.requires("Hero, avatar2");
 		// attr
 		this.attr("skillInterval", 3);
+		
+		this.uiid = "2";
 	},
 	start: function(){
 		this.origin("center");
@@ -593,8 +612,9 @@ function ui_updateMonsterNum (num, total) {
 	$('#monsternum').width( r * 910 );
 	$('#monsternum').css("left", 20 + ( 960 - r * 910 ) / 2 );
 }
-function updateUserHP (id, hp) {
-	$('#user'+id+".hp").value(hp);
+function ui_updateUserHP (id, hp) {
+	gamelog([id, hp, 40*hp].join(","));
+	$("#user"+id).css("width", 40 * hp);
 }
 
 $(function(){
@@ -641,8 +661,8 @@ $(function(){
 		
 		// when start remove all things
 		$('#start_btn').click(function () {
-				$('#start_btn').addClass("start_btn_on");
 			if(!gameStarted && can_start){
+				$('#start_btn').addClass("start_btn_on");
 				$('#hero_selector').addClass('hidden');
 				$('#cr-stage').removeClass('hidden');
 				$('#gameui').removeClass('hidden');
