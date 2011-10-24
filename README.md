@@ -31,7 +31,10 @@
 Crafty引擎: 一个基于Entity/Component架构的Javascript游戏引擎，同时支持Canvas和DOM，对于熟悉Entity/Component架构的开发者来说它非常便利。点此围观:[传送门](https://github.com/louisstow/Crafty)
 
 主要游戏逻辑代码见: public/js/main.js
+
 游戏控制器代码见: public/js/controller.js
+
+由于图快速开发，代码可能比较野蛮，请见谅...
 
 # 联系方式
 微博: @原木博皞 http://weibo.com/boisgames
