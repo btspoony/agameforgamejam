@@ -21,12 +21,17 @@
 * EJS: 一个简单的View渲染引擎。点此围观:[传送门](https://github.com/visionmedia/ejs)
 * Eagle: 我自己写的库，提供API使任意设备可向使用Socket.IO的浏览器推送消息，基于Socket.IO 服务端。点此围观:[传送门](https://github.com/btspoony/node-eagle)
 
+主要代码见 server.js
+
 ## 前端技术
 前端为Javascript开发的HTML5游戏
 
 前端使用库:
 
 Crafty引擎: 一个基于Entity/Component架构的Javascript游戏引擎，同时支持Canvas和DOM，对于熟悉Entity/Component架构的开发者来说它非常便利。点此围观:[传送门](https://github.com/louisstow/Crafty)
+
+主要游戏逻辑代码见: public/js/main.js
+游戏控制器代码见: public/js/controller.js
 
 # 联系方式
 微博: @原木博皞 http://weibo.com/boisgames
