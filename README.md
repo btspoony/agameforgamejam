@@ -17,20 +17,22 @@
 
 服务端使用库:
 
-* Express: 一个NodeJS的Web框架，具有Restful的Route和各种渲染引擎支持[传送门](https://github.com/visionmedia/express)
-* EJS: 一个简单的View渲染引擎[传送门](https://github.com/visionmedia/ejs)
-* Eagle: 我自己写的库，提供API使任意设备可向使用Socket.IO的浏览器推送消息，基于Socket.IO 服务端。[传送门](https://github.com/btspoony/node-eagle)
+* Express: 一个NodeJS的Web框架，具有Restful的Route和各种渲染引擎支持。 点此围观:[传送门](https://github.com/visionmedia/express)
+* EJS: 一个简单的View渲染引擎。点此围观:[传送门](https://github.com/visionmedia/ejs)
+* Eagle: 我自己写的库，提供API使任意设备可向使用Socket.IO的浏览器推送消息，基于Socket.IO 服务端。点此围观:[传送门](https://github.com/btspoony/node-eagle)
 
 ## 前端技术
 前端为Javascript开发的HTML5游戏
 
 前端使用库:
 
-Crafty引擎: 一个基于Entity/Component架构的Javascript游戏引擎，同时支持Canvas和DOM，对于熟悉Entity/Component架构的开发者来说它非常便利。[传送门](https://github.com/louisstow/Crafty)
+Crafty引擎: 一个基于Entity/Component架构的Javascript游戏引擎，同时支持Canvas和DOM，对于熟悉Entity/Component架构的开发者来说它非常便利。点此围观:[传送门](https://github.com/louisstow/Crafty)
 
 # 联系方式
 微博: @原木博皞 http://weibo.com/boisgames
+
 邮件: btspoony[AT]gmail.com
 
 微博: @faseer http://webo.com/faseer
+
 邮件: hbbalfred[AT]gmail.com
