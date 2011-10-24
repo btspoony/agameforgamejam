@@ -19,7 +19,7 @@
 
 * Express: 一个NodeJS的Web框架，具有Restful的Route和各种渲染引擎支持。 点此围观:[传送门](https://github.com/visionmedia/express)
 * EJS: 一个简单的View渲染引擎。点此围观:[传送门](https://github.com/visionmedia/ejs)
-* Eagle: 我自己写的库，提供API使任意设备可向使用Socket.IO的浏览器推送消息，基于Socket.IO 服务端。点此围观:[传送门](https://github.com/btspoony/node-eagle)
+* Eagle: 我自己写的库，提供API使任意设备可向使用Socket.IO的Web页面推送消息，基于Socket.IO服务端。点此围观:[传送门](https://github.com/btspoony/node-eagle)
 
 主要代码见 server.js
 
@@ -34,7 +34,10 @@ Crafty引擎: 一个基于Entity/Component架构的Javascript游戏引擎，同�
 
 游戏控制器代码见: public/js/controller.js
 
-由于图快速开发，代码可能比较野蛮，请见谅...
+_由于图快速开发，代码可能比较野蛮，请见谅..._
+
+# 开源协议
+本软件使用的协议为LPGL, 协议文件请看LICENSE-lgpl.txt
 
 # 联系方式
 微博: @原木博皞 http://weibo.com/boisgames
