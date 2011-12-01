@@ -1,5 +1,8 @@
 # 一款由手机为操控器的HTML5平面射击游戏
 
+## 游戏地址
+http://btspoony.github.com/agameforgamejam
+
 ## 游戏简介
 该游戏是一款由HTML5制作的平面设计游戏。电脑登陆网页端为游戏界面，手机登陆为控制器。
 
