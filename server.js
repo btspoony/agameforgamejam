@@ -29,7 +29,7 @@ app.configure("development", function(){
 app.configure(function(){
 	// View Setting
 	app.set('views', app.path + '/views');
-	app.register('.html', require('ejs'));
+	app.engine('html', require('ejs').__express);
 	app.set('view engine', 'html');
 	
 	// using effcient favicon
@@ -68,7 +68,7 @@ app.configure('production', function(){
 });
 
 // server start listening
-app.listen(port);
+var server = app.listen(port);
 
 // ======= Now Server Started ========
 
@@ -78,16 +78,16 @@ var eagle = new Eagle(app, app.store);
 eagle.nsInit(require('./lib/GameClient'));
 
 // Setup the errors
-app.error(function(err, req, res, next){
+app.use(function(err, req, res, next){
 		if (err instanceof NotFound) {
         res.render('single/404', { locals: { 
                  title : '404 - Not Found'
-                },layout:false,status: 404 });
+                },status: 404 });
     } else {
         res.render('single/500', {locals: { 
                  title : 'The Server Encountered an Error'
                  ,error: err 
-                },layout:false,status: 500 });
+                },status: 500 });
     }
 });
 
@@ -102,10 +102,9 @@ var md5 = function(str, encoding){
 app.get('/', function main (req, res, next) {
 	
 	var ua = req.session.ua = uaParse(req.header("User-Agent"));//User-Agent Parsing Here
-	
 	// if( ua.platform.is.Phone )
 	if( ua.browser.safari )
-		res.render("mobile", { mobileType: ua.platform.name, platform: ua.platform });
+		res.render("mobile");
 	else
 		res.render("index");
 });
@@ -121,4 +120,4 @@ app.get('/connect/:id', function (req, res, next) {
 	res.json({ session: req.sessionID }, 200);
 })
 
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log("Express server listening on port %d in %s mode", server.address().port, app.settings.env);

@@ -1,81 +1,53 @@
-<script type="text/javascript" src="js/controller.js" ></script>
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
 
-<style type="text/css">
-	#mobilemain{
-		background: url('images/mobile_bg.png') no-repeat;
-		width:480px;
-		height:320px;
-		display:-webkit-box;
-		-webkit-box-align:center;
-		-webkit-box-pack:center;
-	}
-	.btn{
-		border:none;
-		background-size:contain;
-	}
-	ul.buttons{
-		list-style-type: none;
-		width:80%;
-	}
-	.buttons li{
-		float:left;
-		width:25%;
-		height:82px;
-	}
-	.hero1, .hero3{
-		background: url('images/index_gun1.png') no-repeat;
-	}
-	.hero2, .hero4{
-		background: url('images/index_knife1.png') no-repeat;
-	}
-	.hero1_on, .hero3_on{
-		background: url('images/index_gun2.png') no-repeat;
-	}
-	.hero2_on, .hero4_on{
-		background: url('images/index_knife2.png') no-repeat;
-	}
-	
-/*	for gaming*/
-	#controller{
-		background: url('images/mobile_game.png') no-repeat;
-		width:480px;
-		height:320px;
-		display:-webkit-box;
-		-webkit-box-align:center;
-		-webkit-box-pack:center;
-	}
-	#area{
-		border:none;
-/*		background-size:contain;*/
-		width:33%;
-		height:33%;
-	}
-	.selhero1, .selhero3{
-		background: url('images/mobile_gun.png') no-repeat;
-	}
-	.selhero2, .selhero4{
-		background: url('images/mobile_knife.png') no-repeat;
-	}
-	.selhero1_on, .selhero3_on{
-		background: url('images/mobile_gun.png') no-repeat -145px 0px;
-	}
-	.selhero2_on, .selhero4_on{
-		background: url('images/mobile_knife.png') no-repeat -145px 0px;
-	}
-</style>
+  <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+       More info: h5bp.com/b/378 -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<div id="mobilemain">
-	<div id="title"></div>
-	<ul class="buttons">
-		<li class="btn hero1" id="hero1"></li>
-		<li class="btn hero2" id="hero2"></li>
-		<li class="btn hero3" id="hero3"></li>
-		<li class="btn hero4" id="hero4"></li>
-	</ul>
-	<div id="ready"></div>
-</div>
+  <title>HTML5 GameJam作品: 杀戮者</title>
+  <meta name="description" content="<%= description %>">
+  <meta name="author" content="<%= author %>">
 
-<div id="controller" class="hidden">
-	<div id="area">
-	</div>
-</div>
+  <!-- Mobile viewport optimized: j.mp/bplateviewport -->
+	<meta name="app-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-touch-fullscreen" content="yes" />
+	<meta name="viewport" content="width=device-width;initial-scale=1.0;maximum-scale=1.0;user-scalable=no;">
+
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div id="container">
+		<div id="mobilemain">
+			<div id="title"></div>
+			<ul class="buttons">
+				<li class="btn hero1" id="hero1"></li>
+				<li class="btn hero2" id="hero2"></li>
+				<li class="btn hero3" id="hero3"></li>
+				<li class="btn hero4" id="hero4"></li>
+			</ul>
+			<div id="ready"></div>
+		</div>
+
+		<div id="controller" class="hidden">
+			<div id="area">
+			</div>
+		</div>
+  </div> <!--! end of #container -->
+  <!-- scripts concatenated and minified via build script -->
+  <!-- JavaScript at the bottom for fast page loading -->
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.3.min.js"><\/script>')</script>
+  <script defer src="js/plugins.js"></script>
+  <script type="text/javascript" src="js/controller.js" ></script>
+  <!-- end scripts -->
+</body>
+</html>

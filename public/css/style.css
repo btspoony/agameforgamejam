@@ -204,94 +204,174 @@ td { vertical-align: top; }
 /* ==|== primary styles =====================================================
    Author: Tang Bo Hao
    ========================================================================== */	
-#main{
+#container{
 	display: -webkit-box;
 	-webkit-box-orient:horizontal;
 	-webkit-box-align:start;
 	-webkit-box-pack:start;
 }
 
-#gamecanvas {
+#main {
+	margin: 0 auto;
 	width: 960px;
 	height: 640px;
 }
 
-#output {
+.index{
+	background: url('../images/index_bg.jpg') no-repeat;
+}
+
+.stage{
+	background: url('../images/index_game.jpg') no-repeat;
+}
+
+.btn{
+	border:none;
+}
+
+#loading{
+	position:relative;
+	width: 280px;
+	top: 320px;
+	margin: 0px auto;
+	color: white;
+	font-size: 4em;
+}
+
+#hero_selector .hero1{
+	background: url('../images/index_gun1.png') no-repeat;
+}
+#hero_selector .hero2{
+	background: url('../images/index_knife1.png') no-repeat;
+}
+
+#hero_selector .hero1_on{
+	background: url('../images/index_gun2.png') no-repeat;
+}
+#hero_selector .hero2_on{
+	background: url('../images/index_knife2.png') no-repeat;
+}
+
+#hero_selector .nohero{
+	background: url('../images/index_ask1.png') no-repeat;
+}
+ul.buttons{
+	list-style-type: none;
+	line-height: 164px;
+	position:relative;
+	top: 260px;
+	left: 65px;
+	width:820px;
+}
+
+ul.buttons li{
+	float:left;
+	width:25%;
+	height:164px;
+}
+
+/*for gaming*/
+#gameui{
 	position: absolute;
-	right: 0px;
-	width: 250px;
-	height: 100%;
-	border: 1px solid black;
+	z-index:1;
+	top:0px;
+	width: 960px;
+	height: 640px;
+}
+.bottom{
+	background: url("../images/bottom.png") no-repeat;
+	position:absolute;
+	bottom:0px;
+	width:100%;
+	height:47px;
+}
+ul.avatars{
+	list-style-type: none;
+	width:360px;
+	position:absolute;
+	bottom:0px;
+	left:270px;
+}
+.avatars li{
+	float:left;
+	width:120px;
+	height:25px;
+	margin: 0px 30px;
+}
+.avatar1{
+/*	one-width:40px;*/
+	background: url("../images/hero1.png") repeat;
+}
+.avatar2{
+	background: url("../images/hero2.png") repeat;
+}
+#monsternum{
+	position:absolute;
+	top:30px;
+	background: url("../images/monster_hp.png") no-repeat;
+	margin: 0px 25px;
+	width:910px;
+	height:15px;
 }
 
-.buttons a, .buttons button{
-    display:block;
-    float:left;
-    margin:0 7px 0 0;
-    background-color:#f5f5f5;
-
-    font-family:"Lucida Grande", Tahoma, Arial, Verdana, sans-serif;
-    font-size:12px;
-    line-height:130%;
-    text-decoration:none;
-    font-weight:bold;
-    color:#565656;
-    cursor:pointer;
-    padding:5px 10px 6px 7px; /* Links */
-}
-.buttons button{
-    width:auto;
-    overflow:visible;
-    padding:4px 10px 3px 7px; /* IE6 */
-}
-.buttons button[type]{
-    padding:5px 10px 5px 7px; /* Firefox */
-    line-height:17px; /* Safari */
-}
-*:first-child+html button[type]{
-    padding:4px 10px 3px 7px; /* IE7 */
-}
-.buttons button img, .buttons a img{
-    margin:0 3px -3px 0 !important;
-    padding:0;
-    border:none;
-    width:16px;
-    height:16px;
+#levelnum{
+	width: 200px;
+	height: 37px;
+	padding: 5px 20px;
+	color: white;
+	font-size: 2em;
 }
 
-/* STANDARD */
 
-button:hover, .buttons a:hover{
-    color:#336699;
-}
-.buttons a:active{
-    color:#fff;
-}
-
-/* POSITIVE */
-
-button.positive, .buttons a.positive{
-    color:#529214;
-}
-.buttons a.positive:hover, button.positive:hover{
-    color:#529214;
-}
-.buttons a.positive:active{
-    color:#fff;
+#flashlogo{
+	position:absolute;
+	width:176px;
+	height:78px;
+	left:380px;
+	top:0px;
 }
 
-/* NEGATIVE */
-
-.buttons a.negative, button.negative{
-    color:#d12f19;
-}
-.buttons a.negative:hover, button.negative:hover{
-    color:#d12f19;
-}
-.buttons a.negative:active{
-    color:#fff;
+.flashlogo{
+	background: url("../images/flashlogo.png") no-repeat;
 }
 
+.flashlogo_on{
+	background: url("../images/flashlogo.png") no-repeat 0px -78px;
+}
+
+/*game over*/
+#background{
+	background: url("../images/battle_bg.jpg") no-repeat;
+	position:relative;
+	left:0px;
+	top:0px;
+	width:960px;
+	height:640px;
+}
+#boneleft{
+	background: url("../images/battle_bone1.png") no-repeat;
+	position:absolute;
+	width:172px;
+	height:484px;
+	left:481px;
+	top:100px;
+}
+#boneright{
+	background: url("../images/battle_bone2.png") no-repeat;
+	position:absolute;
+	width:174px;
+	height:484px;
+	right:481px;
+	top:100px;
+}
+#gameover{
+	background: url("../images/gameover.png") no-repeat;
+	position:absolute;
+	width:572px;
+	height:138px;
+	left:200px;
+	top:250px;
+}
 
 /* ==|== Plugin Styles =====================================================
    For JQuery Plugins

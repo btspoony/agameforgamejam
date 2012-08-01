@@ -1,5 +1,3 @@
-var output;
-
 /**
  * Utils Function
  */
@@ -37,7 +35,7 @@ function isArray(o) {
 }
 
 function gamelog(str) {
-	output.append(str+"<br />");
+	console.log(str);
 }
 
 var STAGEWIDTH = 960,
@@ -62,14 +60,18 @@ var staticInfo = {
 	],
 };
 
-var testData = {
-	maxMons : 40,
-	spawnSpeed : 20,
-	monsTotal : {
-		"MonsterA" : 15,
-		"MonsterB" : 15,
-		"MonsterC" : 10,
-	},
+var getLevelData = function(level){
+	var add = 6*(level -1);
+	var ret = {
+		maxMons : 10 + add ,
+		spawnSpeed : 15 - 0.1 * add,
+		monsTotal : {
+			"MonsterA" : 6 + add/3,
+			"MonsterB" : 3 + add/3,
+			"MonsterC" : 1 + add/3,
+		},
+	};
+	return ret;
 };
 
 // Component Defination
@@ -90,6 +92,8 @@ Crafty.c('LevelData', {
 		}
 		data.monsTotal = monsArr;
 		
+		this.attr('MonsLeft', data.maxMons);
+		this.attr("MonsTotal", data.monsTotal.length);
 		this.attr('levelData', data);
 		return this;
 	}
@@ -117,10 +121,8 @@ Crafty.c("MonsterControl",{
 	},
 	reset: function () { // Game Reset
 		var data = this.attr('levelData');
-		this.attr('MonsLeft', data.maxMons);
 		this._monsTotal = data.monsTotal;
 		this._spawnSpeed = data.spawnSpeed;
-		this.attr("MonsTotal", this._monsTotal.length);
 		return this;
 	},
 	start: function () { // Game Start
@@ -148,6 +150,7 @@ Crafty.c("MonsterControl",{
 			}
 			this._lastframe = frame;
 		});
+		
 		return this;
 	},
 	_iswin: function() {
@@ -212,27 +215,18 @@ Crafty.c('Monster', {
 	},
 	_moveToTarget: function () {
 		
-		var mindist = 0;
-		heroEntities.forEach(function(entity){
-			if(entity.isDeath) return;
-			
-			var dist = distance(entity, this);
-			if( mindist == 0 || dist < mindist ) {
-				mindist = dist;
-				this._target = entity;
-			}
-		},this);
-		var dx = (this._target.x + this._target.w/2) - this.x;
-		var dy = (this._target.y + this._target.h/2) - this.y;
+		var dx = (heroEntity.x + heroEntity.w/2) - this.x;
+		var dy = (heroEntity.y + heroEntity.h/2) - this.y;
 		var angle = Math.atan2(dy, dx);
 		this._movement.x = Math.round(Math.cos(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		this._movement.y = Math.round(Math.sin(angle) * 1000 * (this.attr('speed')+Math.random()*0.6-0.3) )/1000;
 		
 		// Set auto rotate
 		this.rotation = angle / Math.PI * 180;
-		
+
+		var mindist = distance(this, heroEntity);
 		if(mindist < 75){
-			this._target.beHitted(this.attr("atk"));
+			heroEntity.beHitted(this.attr("atk"));
 		}else if(mindist>50){
 			this.x += this._movement.x;
 			this.y += this._movement.y;
@@ -248,15 +242,16 @@ Crafty.c('Monster', {
 	playDie: function () {
 		if(this._status != "die"){
 			this._status = "die";
-			//TODO Play Anim
+			// Play Anim
 			this.animate("die", 10);
 			
-			this.delay(function(){
-				var n = globalEntity.attr("MonsLeft");
-				globalEntity.attr("MonsLeft", n - 1);
-				
-				var t = globalEntity.attr("MonsTotal");
-				ui_updateMonsterNum( n, t, n/t );
+			//set die
+			var n = globalEntity.attr("MonsLeft");
+			var t = globalEntity.attr("MonsTotal");
+			ui_updateMonsterNum( n-1, t );
+			globalEntity.attr("MonsLeft", n - 1);
+			
+			this.timeout(function(){
 				this.destroy();
 			}, 100);
 			
@@ -290,7 +285,7 @@ Crafty.c('MonsterC', {
 		this.requires('Monster');
 		
 		// monster hp
-		this.attr('hp', 5);
+		this.attr('hp', 3);
 		this.attr('speed', 0.5);
 		this.attr('atk', 1);
 	},
@@ -299,7 +294,7 @@ Crafty.c('MonsterC', {
 //  ======= Hero - Persist Entity ==========
 Crafty.c('Hero', {
 	init: function () {
-		this.requires("2D, Canvas, Persist, HeroRemoteController");
+		this.requires("2D, Canvas, Persist, HeroControll");
 		
 		// Set auto rotate
 		this.bind('NewDirection', function(dir){
@@ -326,7 +321,7 @@ Crafty.c('Hero', {
 		var body = Crafty.e('2D, Canvas, Tween, hero_death')
 		.attr({x: this.x, y: this.y, alpha:1.0})
 		.tween({alpha: 0 }, 900);
-		this.delay(function(){
+		this.timeout(function(){
 			body.destroy();
 		}, 1000);
 		
@@ -343,24 +338,8 @@ Crafty.c('Hero', {
 		this.attr('hp', hpnow);
 	},
 	playDie: function () {
-		gameover();
-		return;
-		
-		this.isDeath = true;
-		
-		var over = true;
-		for(var i in heroEntities){
-			if( heroEntities[i] && !heroEntities[i].isDeath ){
-				over = false;
-			}else{
-				heroEntities[i] = null;
-			}
-		}
-		if(over){
-			gameover();
-		}
-		
 		this.destroy();
+		gameover();
 		return this;
 	},
 });
@@ -368,53 +347,27 @@ Crafty.c('Hero', {
 Crafty.c('HeroControll',{
 	init: function () {
 		this.requires("Fourway")
-		.fourway(1.5)
-		.bind('KeyDown', function(data) {
+		.fourway(3)
+		.bind('KeyDown', function (data) {
 			var key = data.key;
 			if(key === Crafty.keys["J"]){
 				this.shoot();
 			}
-		});
-	},
-});
-
-Crafty.c('HeroRemoteController',{
-	init: function () {
-		this._movement = {x:0, y:0};
-		
-		this.bind("EnterFrame",function() {
-			// if (this.disableControls) return;
-	
-			if(this._movement.x !== 0) {
-				this.x += this._movement.x;
-				this.trigger('Moved', {x: this.x - this._movement.x, y: this.y});
-			}
-			if(this._movement.y !== 0) {
-				this.y += this._movement.y;
-				this.trigger('Moved', {x: this.x, y: this.y - this._movement.y});
+		})
+		.bind('Moved', function (origin) {
+			if(this.x < 0 || this.x > 880 
+			|| this.y < 50 || this.y > 520){
+				this.x = origin.x;
+				this.y = origin.y;
 			}
 		});
-	},
-	move: function( data ){
-		this._movement.x = data.vx;
-		this._movement.y = data.vy;
-		this._movement.x *= 2.5;
-		this._movement.y *= 2.5;
-		
-		this.trigger('NewDirection', this._movement);
-		
-		return this;
-	},
-        
-	attack: function(){
-		this.shoot();
 	},
 });
 
 Crafty.c('hero1', {
 	_lastShootTime: 0,
 	init: function () {
-		this.requires("Hero, avatar1, HeroControll");
+		this.requires("Hero, avatar1");
 		// attr
 		this.attr("skillInterval", 6);
 		
@@ -448,69 +401,10 @@ Crafty.c('hero2', {
 	start: function(){
 		this.origin("center");
 		
-		if(!this._skill){
-			this._skill = Crafty.e('Knife').placeby(this);
-			this.attach(this._skill);
-			// hit test
-			this._skill.collision(new Crafty.polygon([0,0],[20,0],[20, 20],[0, 20]));	
-		}
-		return this;
-	},
-	shoot: function () {
-		var interval = this.attr("skillInterval");
-		var frame = Crafty.frame();
-		if(frame - this._lastShootTime > interval){
-			this._lastShootTime = frame;
-			this._skill.rotation = this.rotation;
-			this._skill.play();
-		}
-		return this;
-	},
-});
-
-Crafty.c('hero3', {
-	_lastShootTime: 0,
-	init: function () {
-		this.requires("Hero, avatar1");
-		// attr
-		this.attr("skillInterval", 6);
-		
-		this.uiid = "3";
-	},
-	start: function(){
-		this.origin("center");
-		return this;
-	},
-	shoot: function () {
-		var interval = this.attr("skillInterval");
-		var frame = Crafty.frame();
-		if(frame - this._lastShootTime > interval){
-			this._lastShootTime = frame;
-			// Spawn new Ammo
-			Crafty.e("Ammo").from(this);
-		}
-		return this;
-	},
-});
-
-Crafty.c('hero4', {
-	_lastShootTime: 0,
-	init: function () {
-		this.requires("Hero, avatar2");
-		// attr
-		this.attr("skillInterval", 3);
-		
-		this.uiid = "4";
-	},
-	start: function(){
-		this.origin("center");
-		
-		if(!this._skill){
-			this._skill = Crafty.e('Knife').placeby(this);
-			this.attach(this._skill);
-			// hit test
-			this._skill.collision(new Crafty.polygon([0,0],[20,0],[20, 20],[0, 20]));	
-		}
+		this._skill = Crafty.e('Knife').placeby(this);
+		this.attach(this._skill);
+		// hit test
+		this._skill.collision(new Crafty.polygon([0,0],[20,0],[20, 20],[0, 20]));	
 		return this;
 	},
 	shoot: function () {
@@ -549,7 +443,7 @@ Crafty.c("Knife",{
 		Crafty.audio.play("knife");
 			
 		this.visible = true;
-		this.delay(function () {
+		this.timeout(function () {
 			this.visible = false;
 		},100);
 		
@@ -604,44 +498,117 @@ Crafty.c("Ammo",{
 	}
 });
 
-var globalEntity;
 var currentLevel;
-var heroEntities = [];
+var globalEntity;
+var heroEntity;
 
 var gameStarted = false;
-var can_start = false;
 var herocontroller = [0,0,0,0];
 
 
-function gameinit() {
+function gameinit(heroid) {
 	currentLevel = 1;
 	
-	for(var i=0; i<10; ++i)
-	{
+	var createLevel = function( i ){
 		Crafty.scene("Level"+i,function () {
-			// special for Level 1
-		});
-	}
-	Crafty.scene("End",function () {
-		// special for Level 1
-	});
+			Crafty("LevelData").each(function(){
+				this.initLevel(getLevelData(i));// todo using deferent data
+			});
+
+			// Reset all presist entity
+			Crafty("Persist").each(function(){
+				this.reset();
+				if(this.hasOwnProperty('start')) this.start();
+			});
+		});	
+	};
+	for(var i=1; i<10; i++) createLevel(i);
 	
+	Crafty.scene("End",function () { /*Nothing*/ } );
+	
+	//Start Game
+	
+	Crafty.init(STAGEWIDTH,STAGEHEIGHT);
+
+	// ========== Here create presist entities
+	gamelog("Create Hero: "+ heroid);
+	heroEntity = Crafty.e(heroid);
+	
+	// Create Global
+	globalEntity = Crafty.e('LevelData, MonsterControl');
+	
+	// Start a level
+	nextLevel();
+	
+	// set game started
+	gameStarted = true;
+};
+
+function nextLevel() {
+	ui_updateMonsterNum(1,1);
+	
+	if(currentLevel<20){
+		updateLevelNum("Level: "+ currentLevel);
+		
+		Crafty.scene("Level"+currentLevel); //go to main scene
+		
+		currentLevel++;
+	}else{
+		//TODO End Game
+		Crafty.stop();
+		gameStarted = false;
+	}
+}
+
+var jui_levelNum, jui_monster_num, jui_flashlogo;
+
+function updateLevelNum (level) {
+	jui_levelNum.html(level);
+}
+function ui_updateMonsterNum (num, total) {
+	var r = num / total;
+	jui_monster_num.width( r * 910 );
+	var rest = ( 960 - r * 910 ) / 2;
+	jui_monster_num.css("margin-left",  rest);
+	jui_monster_num.css("margin-right", rest );
+	
+	if(num>1) jui_flashlogo.addClass('flashlogo_on').delay(150).queue(function(){
+		$(this).removeClass('flashlogo_on');
+	});
+}
+function ui_updateUserHP (id, hp) {
+	$("#user"+id).css("width", 40 * hp);
+}
+
+function gameover () {
+	Crafty.scene("End");
+	Crafty.stop();
+	gameStarted = false;
+	
+	$("#gameui").addClass('hidden');
+	$("#cr-stage").addClass('hidden');
+	$("#background").removeClass("hidden");	
+}
+
+
+$(function(){
+	console.log('Page Loaded');
+	// init ui
+	jui_levelNum = $('#levelnum');
+	jui_monster_num = $('#monsternum');
+	jui_flashlogo = $('#flashlogo');
+	
+	var loadingUI = $('#loading');
 	Crafty.load(
 		["images/avatar1.png",
 	 	 "images/avatar2.png",
 		 "images/bullet.png",
 		 "images/daoguang.png",
 		 "images/monster.png",
-		 "sound/bgm.mp3",
 		 "sound/death.mp3",
 		 "sound/gun.mp3",
 		 "sound/knife.mp3"], 
 	    function() {
-	        //when loaded
-			Crafty.init(STAGEWIDTH,STAGEHEIGHT);
-
-			Crafty.background("url('images/index_game.jpg') no-repeat"); // Set Game Background
-
 			// Load Game Sprite Sprites
 			Crafty.sprite(100,75,'images/avatar1.png',{'avatar1':[0,0]});
 			Crafty.sprite(100,75,'images/avatar2.png',{'avatar2':[0,0]});
@@ -657,151 +624,35 @@ function gameinit() {
 			Crafty.audio.add("knife", "sound/knife.mp3");
 			
 			// Play BGM
-			Crafty.audio.play("bgm", -1);
+			Crafty.audio.play("bgm", -1, 0.5);
 			
-			// ========== Here create presist entities
+			// Display Selector
+			$('#loading').addClass("hidden");
+			$('#hero_selector').removeClass('hidden');
+			$('.hero').click(function(){
+				var self = $(this);
+				if(!gameStarted){
+					var heroid = self.attr('id');
+					$(this).addClass( heroid +'_on');
 			
-			var heroes = [];
-			herocontroller.forEach(function(ele, index){
-				if(ele !== 0){
-					var i = index+1;
-					gamelog("Create Hero: "+ i);
-					heroEntities[index] = Crafty.e("hero"+i);
+					$('#hero_selector').addClass('hidden');
+					$('#main').removeClass('index');
+					$('#cr-stage').removeClass('hidden');
+					$('#gameui').removeClass('hidden');
+			
+					// Game Start
+					gameinit(heroid);
 				}
 			});
-			
-			// Create Global
-			globalEntity = Crafty.e('LevelData, MonsterControl');
-			
-			// Start a level
-			nextLevel();
 	    },
-
+	    //progress
 	    function(e) {
-	      //progress
+			loadingUI.html( "Loading ... "+ e.percent+"%" );
 	    },
-
 	    function(e) {
-	      //uh oh, error loading
+			//uh oh, error loading
+			gamelog(e);
 	    }
 	);
 	
-	// set game started
-	gameStarted = true;
-};
-
-function nextLevel() {
-	ui_updateMonsterNum(1,1);
-	
-	if(currentLevel<10){
-		Crafty.scene("Level"+currentLevel); //go to main scene
-		
-		Crafty("LevelData").each(function(){
-			this.initLevel(testData);// todo using deferent data
-		});
-		
-		// Reset all presist entity
-		Crafty("Persist").each(function(){
-			this.reset();
-			if(this.hasOwnProperty('start')) this.start();
-		});
-		
-		currentLevel++;
-	}else{
-		//TODO End Game
-		Crafty.stop();
-		gameStarted = false;
-	}
-}
-
-function updateLevelNum (num) {
-	$('#levelnum').value(num);
-}
-function ui_updateMonsterNum (num, total) {
-	var r = num / total;
-	$('#monsternum').width( r * 910 );
-	$('#monsternum').css("left", 20 + ( 960 - r * 910 ) / 2 );
-}
-function ui_updateUserHP (id, hp) {
-	$("#user"+id).css("width", 40 * hp);
-}
-
-function gameover () {
-	Crafty.scene("End");
-	Crafty.stop();
-	gameStarted = false;
-
-	$("#background").removeClass("hidden");
-	
-	$("#hunman").fadeOut(2000, function() {
-		$("#boneleft").animate({left:"500px"}, 500);
-		$("#boneright").animate({right:"458px"},500);
-		$("#gameover").hide().fadeIn("slow");
-	});
-	
-}
-
-
-$(function(){
-	
-	console.log('Page Loaded');
-	output = $("#output");
-
-	var sio = window.sio = io.connect();
-	sio.on('connect', function () {
-		output.append('Server Connected ! <br/>');
-
-		sio.emit('roomjoin', function (roomid) {
-			output.append('Room ID: '+ roomid +'<br/>');
-		});
-		
-		sio.on('heroconnect', function (data) { // controller connect
-			if(!gameStarted){
-				var hero = Number(data.hero.substr(4));
-				var session = data.session;
-
-				if(herocontroller.indexOf(session) < 0){
-					can_start = true;
-					herocontroller[hero-1] = session;
-					$('#hero'+hero).addClass('hero'+hero+'_on');
-					output.append('"HERO ' + hero + '" connected ! session is "'+session+'" <br/>');
-				}				
-			}
-		}).on('game control', function (data) {
-			if(gameStarted){
-				try{
-					var hero = Number(herocontroller.indexOf( data.user.id ));
-					// for(var i in heroEntities) gamelog(i+":"+heroEntities[i]);
-					if(hero === -1) return;
-					var entity = heroEntities[ hero];
-					if(entity && entity[data.msg.type]) entity[ data.msg.type ].apply(entity, [data.msg.data]);
-				}catch(ex){
-					gamelog(data.msg.type);
-					gamelog("Exception:"+ex.message);
-				}
-			}
-		}).on('disconnect', function (msg) {
-			output.append('Server Disconnected! <br/>');
-		}).on('logger', function(data) {
-			gamelog(data.msg);
-		});
-		
-		// when start remove all things
-		$('#start_btn').click(function () {
-			if(!gameStarted && can_start){
-				$('#start_btn').addClass("start_btn_on");
-				$('#hero_selector').addClass('hidden');
-				$('#cr-stage').removeClass('hidden');
-				$('#gameui').removeClass('hidden');
-				
-				// Game Start
-				gameinit();
-			}
-		});
-	});
-
-	// Set global error handler
-	sio.socket.on('error', function(msg) {
-		output.append('Server Error '+msg+'<br/>');
-	});
 });
